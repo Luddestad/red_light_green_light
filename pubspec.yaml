@@ -38,7 +38,6 @@ dependencies:
   # Computer Vision & ML
   tflite_flutter: ^0.10.4
   camera: ^0.10.5+5
-  google_mlkit_face_detection: ^0.13.1
   google_mlkit_pose_detection: ^0.14.0
   
   # State Management

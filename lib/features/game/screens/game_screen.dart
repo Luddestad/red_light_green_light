@@ -2,13 +2,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:google_mlkit_pose_detection/google_mlkit_pose_detection.dart';
-import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'dart:math' as math;
 import '../models/game_state.dart';
 import '../models/player_tracker.dart';
 import '../models/difficulty_settings.dart';
 import '../../../core/services/pose_detection_service.dart';
-import '../../../core/services/face_recognition_service.dart';
 import '../../../core/services/camera_service.dart';
 import '../../../core/services/audio_service.dart';
 import '../widgets/light_indicator_widget.dart';
@@ -44,7 +42,6 @@ class _GameScreenState extends State<GameScreen> {
   // Services
   final CameraService _cameraService = CameraService();
   final PoseDetectionService _poseService = PoseDetectionService();
-  final FaceRecognitionService _faceService = FaceRecognitionService();
   final AudioService _audioService = AudioService();
 
   // Game state
@@ -73,12 +70,11 @@ class _GameScreenState extends State<GameScreen> {
   /// Initialize player trackers for multi-player detection
   void _initializePlayerTrackers() {
     _playerTrackers.clear();
-    for (int i = 0; i < widget.playerCount; i++) {
-      _playerTrackers.add(PlayerTracker(
-        playerIndex: i,
-        playerName: 'Player ${i + 1}',
-      ));
-    }
+    // Single-player mode: only one tracker is needed
+    _playerTrackers.add(PlayerTracker(
+      playerIndex: 0,
+      playerName: 'Player 1',
+    ));
     print('🎯 Initialized ${_playerTrackers.length} player trackers');
   }
 
@@ -88,13 +84,13 @@ class _GameScreenState extends State<GameScreen> {
       greenLightDuration: widget.difficulty.getGreenLightDuration(),
       redLightDuration: widget.difficulty.getRedLightDuration(),
     );
-    _gameSession.initializePositions(widget.playerCount);
+  // Single-player game: initialize a single player position
+  _gameSession.initializePositions(1);
 
-    // Initialize services
-    await _cameraService.initialize();
-    await _poseService.initialize();
-    await _faceService.initialize();
-    await _audioService.initialize();
+  // Initialize services (face detection disabled for single-player)
+  await _cameraService.initialize();
+  await _poseService.initialize();
+  await _audioService.initialize();
 
     // Start camera
     await _cameraService.startPreview();
@@ -107,12 +103,9 @@ class _GameScreenState extends State<GameScreen> {
 
     setState(() {});
 
-    // Announce game start
-    final playerText = widget.playerCount == 1 ? 'player' : 'players';
+    // Announce game start (single-player)
     await _audioService.speak(
-      'Welcome to Red Light Green Light! '
-      '${widget.playerCount == 1 ? 'Get in your position' : '${widget.playerCount} $playerText, get in your positions'}. '
-      'Game will start in 20 seconds.'
+      'Welcome to Red Light Green Light! Get in your position. Game will start in 20 seconds.'
     );
 
     _startCountdown();
@@ -137,17 +130,13 @@ class _GameScreenState extends State<GameScreen> {
 
   Future<void> _startGame() async {
     // Check if detection system is stable and players are detected
-    final detectedPlayers = _playerTrackers.where((t) => t.isDetected).length;
-    final stablePlayers = _playerTrackers.where((t) => t.isStable).length;
+  final detectedPlayers = _playerTrackers.where((t) => t.isDetected).length;
+  final stablePlayers = _playerTrackers.where((t) => t.isStable).length;
     
     // IMPROVED: Game can start with stable players (not just detected)
     bool canStart;
-    if (widget.playerCount == 1) {
-      canStart = (stablePlayers >= 1); // Need at least 1 stable player for single player
-    } else {
-      // Multi-player: Need at least 1 stable player
-      canStart = (stablePlayers >= 1);
-    }
+    // Single-player: need at least 1 stable player
+    canStart = (stablePlayers >= 1);
     
     if (!canStart) {
       print('⚠️ Detection not ready: ${detectedPlayers}/${widget.playerCount} detected, ${stablePlayers} stable, system: $_systemInitialized');
@@ -155,10 +144,7 @@ class _GameScreenState extends State<GameScreen> {
       return;
     }
 
-    // Warn if fewer people than expected player count
-    if (detectedPlayers < widget.playerCount) {
-      print('⚠️ Fewer people detected (${detectedPlayers}) than selected player count (${widget.playerCount})');
-    }
+    // Single-player: no multi-player warnings
 
     print('✅ Game starting with ${detectedPlayers} detected players (${stablePlayers} stable)');
 
@@ -169,7 +155,7 @@ class _GameScreenState extends State<GameScreen> {
     // Stop lobby music when game starts
     await _audioService.stopLobbySound();
 
-    // Reset all player baselines for movement detection
+    // Reset baseline for the single tracker
     for (final tracker in _playerTrackers) {
       tracker.resetBaseline();
     }
@@ -181,8 +167,7 @@ class _GameScreenState extends State<GameScreen> {
     _gameSession.advanceState(); // Move to countdown
     _gameSession.advanceState(); // Move to green light
 
-    final playerCountText = detectedPlayers == 1 ? '1 player' : '${detectedPlayers} players';
-    await _audioService.speak('Game started with ${playerCountText}! Green light!');
+  await _audioService.speak('Game started! Green light!');
     
     _startGameLoop();
     setState(() {});
@@ -283,12 +268,11 @@ class _GameScreenState extends State<GameScreen> {
     _isProcessing = true;
 
     try {
-      // Step 1: Run both face and pose detection
-      final faces = await _faceService.detectFaces(image);
-      final poses = await _poseService.detectPoses(image);
+  // Step 1: Run pose detection only
+  final poses = await _poseService.detectPoses(image);
 
-      // Step 2: Update all player trackers with new detection results
-      await _updatePlayerTrackers(faces, poses);
+  // Step 2: Update all player trackers with new detection results
+  await _updatePlayerTrackers(const [], poses);
 
       // Step 3: Check for movement violations during red light
       if (_gameSession.currentState == GameState.redLight) {
@@ -428,7 +412,7 @@ class _GameScreenState extends State<GameScreen> {
   bool _allPlayersAnnouncementMade = false;
 
   /// Update all player trackers with new detection results using proper individual assignment
-  Future<void> _updatePlayerTrackers(List<Face> faces, List<Pose> poses) async {
+  Future<void> _updatePlayerTrackers(List<dynamic> faces, List<Pose> poses) async {
     // STEP 1: Clear all current assignments
     for (final tracker in _playerTrackers) {
       tracker.clearDetection();
@@ -446,7 +430,7 @@ class _GameScreenState extends State<GameScreen> {
     final maxPlayers = math.min(_playerTrackers.length, actualPeopleCount);
     
     // STEP 4: Create combined detections (face + pose pairs)
-    final detections = _createDetectionPairs(faces, poses);
+  final detections = _createDetectionPairs(poses);
     
     // STEP 5: Sort detections spatially (left to right)
     detections.sort((a, b) => (a['x'] as double).compareTo(b['x'] as double));
@@ -456,8 +440,8 @@ class _GameScreenState extends State<GameScreen> {
       final tracker = _playerTrackers[i];
       final detection = detections[i];
       
-      tracker.forceAssignment(face: detection['face'] as Face?, pose: detection['pose'] as Pose?);
-      print('👤 Assigned ${detection['face'] != null ? 'Face+' : ''}${detection['pose'] != null ? 'Pose' : ''} to ${tracker.playerName} at x=${(detection['x'] as double).toStringAsFixed(1)}');
+      tracker.forceAssignment(pose: detection['pose'] as Pose?);
+      print('👤 Assigned Pose to ${tracker.playerName} at x=${(detection['x'] as double).toStringAsFixed(1)}');
     }
     
     // STEP 7: Remaining trackers stay unassigned (representing players not present)
@@ -573,58 +557,13 @@ class _GameScreenState extends State<GameScreen> {
   }
   
   /// Create detection pairs by combining faces and poses spatially
-  List<Map<String, dynamic>> _createDetectionPairs(List<Face> faces, List<Pose> poses) {
-    final detections = <Map<String, dynamic>>[];
-    
-    // Convert faces to detections
-    final faceDetections = faces.map((face) => {
-      'face': face,
-      'pose': null,
-      'x': face.boundingBox.center.dx,
-    }).toList();
-    
-    // Convert poses to detections  
-    final poseDetections = poses.map((pose) => {
-      'face': null,
+  List<Map<String, dynamic>> _createDetectionPairs(List<Pose> poses) {
+    final detections = poses.map((pose) => {
       'pose': pose,
       'x': _getPoseCenter(pose).dx,
     }).toList();
-    
-    // Merge nearby face and pose detections (same person)
-    final mergedDetections = <Map<String, dynamic>>[];
-    const double mergeThreshold = 100.0; // pixels
-    
-    for (final faceDetection in faceDetections) {
-      bool merged = false;
-      
-      // Try to find a nearby pose
-      for (int i = 0; i < poseDetections.length; i++) {
-        final poseDetection = poseDetections[i];
-        final distance = ((faceDetection['x'] as double) - (poseDetection['x'] as double)).abs();
-        
-        if (distance < mergeThreshold) {
-          // Merge face + pose
-          mergedDetections.add({
-            'face': faceDetection['face'],
-            'pose': poseDetection['pose'],
-            'x': ((faceDetection['x'] as double) + (poseDetection['x'] as double)) / 2,
-          });
-          poseDetections.removeAt(i);
-          merged = true;
-          break;
-        }
-      }
-      
-      if (!merged) {
-        // Add face-only detection
-        mergedDetections.add(faceDetection);
-      }
-    }
-    
-    // Add remaining pose-only detections
-    mergedDetections.addAll(poseDetections);
-    
-    return mergedDetections;
+
+    return detections;
   }
 
   // Old conflict resolution method removed - now handled in _updatePlayerTrackers
@@ -1226,7 +1165,6 @@ class _GameScreenState extends State<GameScreen> {
     _countdownTimer?.cancel();
     _cameraService.dispose();
     _poseService.dispose();
-    _faceService.dispose();
     super.dispose();
   }
 }

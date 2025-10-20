@@ -31,23 +31,22 @@ class AudioService {
       if (voices != null) {
         for (final voice in voices) {
           final voiceMap = voice as Map<String, dynamic>;
-          final name = voiceMap['name']?.toString().toLowerCase() ?? '';
-          final gender = voiceMap['gender']?.toString().toLowerCase() ?? '';
-          
+          final name = (voiceMap['name'] ?? '').toString().toLowerCase();
+          final gender = (voiceMap['gender'] ?? '').toString().toLowerCase();
+
           // Look for female voices or voices with female-sounding names
-          if (gender.contains('female') || 
+          if (gender.contains('female') ||
               name.contains('female') ||
               name.contains('samantha') ||
               name.contains('karen') ||
               name.contains('moira') ||
               name.contains('tessa') ||
               name.contains('fiona')) {
-            // Convert the voice map to the correct format
+            // Convert the voice map to the correct format (string values)
             final Map<String, String> voiceData = {};
-            voiceMap.forEach((key, value) {
-              if (key is String && value != null) {
-                voiceData[key] = value.toString();
-              }
+            voiceMap.forEach((k, v) {
+              final key = k.toString();
+              if (v != null) voiceData[key] = v.toString();
             });
             await _tts.setVoice(voiceData);
             print('Set female voice: ${voiceMap['name']}');

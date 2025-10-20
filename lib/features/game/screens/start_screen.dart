@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../features/game/screens/game_screen.dart';
-import '../features/game/models/difficulty_settings.dart';
+import 'game_screen.dart';
+import '../models/difficulty_settings.dart';
 
 /// Start screen for selecting player count and starting the game
 class StartScreen extends StatefulWidget {
@@ -11,7 +11,7 @@ class StartScreen extends StatefulWidget {
 }
 
 class _StartScreenState extends State<StartScreen> {
-  int _selectedPlayerCount = 1;
+  // Single-player only
   DifficultySettings _selectedDifficulty = DifficultySettings.defaultSettings;
 
   @override
@@ -94,7 +94,7 @@ class _StartScreenState extends State<StartScreen> {
                 
                 const SizedBox(height: 30),
                 
-                // Player count selection
+                // Single-player instruction
                 Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
@@ -103,33 +103,21 @@ class _StartScreenState extends State<StartScreen> {
                     border: Border.all(color: Colors.white.withOpacity(0.3)),
                   ),
                   child: Column(
-                    children: [
-                      const Text(
-                        'SELECT PLAYERS',
+                    children: const [
+                      Text(
+                        '1 PLAYER MODE',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const SizedBox(height: 20),
-                      
-                      // Player count buttons
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [1, 2, 3, 4].map((count) => 
-                          _buildPlayerCountButton(count)).toList(),
-                      ),
-                      
-                      const SizedBox(height: 15),
+                      SizedBox(height: 12),
                       Text(
-                        _selectedPlayerCount == 1 
-                            ? 'Stand in front of camera'
-                            : 'Players stand side by side in front of camera',
+                        'Stand in front of the camera. The game will detect your movement using pose detection.',
                         style: TextStyle(
-                          color: Colors.white.withOpacity(0.8),
+                          color: Colors.white,
                           fontSize: 14,
-                          fontStyle: FontStyle.italic,
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -202,11 +190,9 @@ class _StartScreenState extends State<StartScreen> {
                       children: [
                         const Icon(Icons.play_arrow, size: 30),
                         const SizedBox(width: 10),
-                        Text(
-                          _selectedPlayerCount == 1 
-                              ? 'START GAME (1 Player)'
-                              : 'START GAME ($_selectedPlayerCount Players)',
-                          style: const TextStyle(
+                        const Text(
+                          'START GAME (1 Player)',
+                          style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                           ),
@@ -240,50 +226,7 @@ class _StartScreenState extends State<StartScreen> {
     ); // Scaffold
   }
 
-  Widget _buildPlayerCountButton(int count) {
-    final isSelected = _selectedPlayerCount == count;
-    
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _selectedPlayerCount = count;
-        });
-      },
-      child: Container(
-        width: 80,
-        height: 80,
-        decoration: BoxDecoration(
-          color: isSelected ? Colors.blue : Colors.transparent,
-          border: Border.all(
-            color: isSelected ? Colors.blue : Colors.white.withOpacity(0.5),
-            width: 2,
-          ),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              '$count',
-              style: TextStyle(
-                color: isSelected ? Colors.white : Colors.white.withOpacity(0.8),
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'Players',
-              style: TextStyle(
-                color: isSelected ? Colors.white : Colors.white.withOpacity(0.6),
-                fontSize: 12,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  // Player count selection removed for single-player mode
 
   Widget _buildDifficultyButton(DifficultySettings difficulty) {
     final isSelected = _selectedDifficulty.level == difficulty.level;
@@ -331,9 +274,9 @@ class _StartScreenState extends State<StartScreen> {
 
   void _startGame() {
     Navigator.of(context).push(
-      MaterialPageRoute(
+                  MaterialPageRoute(
         builder: (context) => GameScreen(
-          playerCount: _selectedPlayerCount,
+          playerCount: 1,
           difficulty: _selectedDifficulty,
         ),
       ),

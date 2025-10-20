@@ -1,44 +1,34 @@
 import 'package:flutter/material.dart';
-import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:google_mlkit_pose_detection/google_mlkit_pose_detection.dart';
 import '../../features/game/models/pose_landmark.dart';
 
 /// Widget for overlaying detection results on camera preview
 class DetectionOverlayWidget extends StatelessWidget {
   final List<PoseData> poses;
-  final List<Face> faces;
   final Map<String, String> poseToPlayerMap;
-  final Map<String, String> faceToPlayerMap;
   final Size previewSize;
   final bool showPoseLandmarks;
-  final bool showFaceBoxes;
   final bool showMovementIndicators;
 
   const DetectionOverlayWidget({
     super.key,
     required this.poses,
-    required this.faces,
     required this.poseToPlayerMap,
-    required this.faceToPlayerMap,
     required this.previewSize,
     this.showPoseLandmarks = true,
-    this.showFaceBoxes = true,
     this.showMovementIndicators = true,
   });
 
   @override
   Widget build(BuildContext context) {
     return CustomPaint(
-      painter: DetectionOverlayPainter(
-        poses: poses,
-        faces: faces,
-        poseToPlayerMap: poseToPlayerMap,
-        faceToPlayerMap: faceToPlayerMap,
-        previewSize: previewSize,
-        showPoseLandmarks: showPoseLandmarks,
-        showFaceBoxes: showFaceBoxes,
-        showMovementIndicators: showMovementIndicators,
-      ),
+        painter: DetectionOverlayPainter(
+          poses: poses,
+          poseToPlayerMap: poseToPlayerMap,
+          previewSize: previewSize,
+          showPoseLandmarks: showPoseLandmarks,
+          showMovementIndicators: showMovementIndicators,
+        ),
       size: Size.infinite,
     );
   }
@@ -47,22 +37,16 @@ class DetectionOverlayWidget extends StatelessWidget {
 /// Custom painter for detection overlay
 class DetectionOverlayPainter extends CustomPainter {
   final List<PoseData> poses;
-  final List<Face> faces;
   final Map<String, String> poseToPlayerMap;
-  final Map<String, String> faceToPlayerMap;
   final Size previewSize;
   final bool showPoseLandmarks;
-  final bool showFaceBoxes;
   final bool showMovementIndicators;
 
   DetectionOverlayPainter({
     required this.poses,
-    required this.faces,
     required this.poseToPlayerMap,
-    required this.faceToPlayerMap,
     required this.previewSize,
     required this.showPoseLandmarks,
-    required this.showFaceBoxes,
     required this.showMovementIndicators,
   });
 
@@ -70,10 +54,6 @@ class DetectionOverlayPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     if (showPoseLandmarks) {
       _drawPoseLandmarks(canvas, size);
-    }
-
-    if (showFaceBoxes) {
-      _drawFaceBoxes(canvas, size);
     }
 
     if (showMovementIndicators) {
@@ -102,16 +82,7 @@ class DetectionOverlayPainter extends CustomPainter {
   }
 
   /// Draw face detection boxes
-  void _drawFaceBoxes(Canvas canvas, Size size) {
-    for (int i = 0; i < faces.length; i++) {
-      final face = faces[i];
-      final playerId = faceToPlayerMap[i.toString()] ?? 'unknown_$i';
-      final color = _getPlayerColor(playerId);
-
-      final rect = _scaleRect(face.boundingBox, size);
-      _drawFaceBox(canvas, rect, color, playerId);
-    }
-  }
+  // Face boxes removed in single-player mode
 
   /// Draw movement indicators
   void _drawMovementIndicators(Canvas canvas, Size size) {
@@ -166,34 +137,7 @@ class DetectionOverlayPainter extends CustomPainter {
     }
   }
 
-  /// Draw face detection box
-  void _drawFaceBox(Canvas canvas, Rect rect, Color color, String playerId) {
-    final paint = Paint()
-      ..color = color
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 3.0;
-
-    canvas.drawRect(rect, paint);
-
-    // Draw player ID label
-    final textPainter = TextPainter(
-      text: TextSpan(
-        text: playerId,
-        style: TextStyle(
-          color: color,
-          fontSize: 16,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-      textDirection: TextDirection.ltr,
-    );
-
-    textPainter.layout();
-    textPainter.paint(
-      canvas,
-      Offset(rect.left, rect.top - textPainter.height - 5),
-    );
-  }
+  // Face box drawing removed in single-player mode
 
   /// Scale point from normalized coordinates to screen coordinates
   Offset _scalePoint(double x, double y, Size size) {
@@ -204,14 +148,7 @@ class DetectionOverlayPainter extends CustomPainter {
   }
 
   /// Scale rectangle from normalized coordinates to screen coordinates
-  Rect _scaleRect(Rect rect, Size size) {
-    return Rect.fromLTRB(
-      rect.left * size.width,
-      rect.top * size.height,
-      rect.right * size.width,
-      rect.bottom * size.height,
-    );
-  }
+
 
   /// Get color for player
   Color _getPlayerColor(String playerId) {
@@ -230,9 +167,6 @@ class DetectionOverlayPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(DetectionOverlayPainter oldDelegate) {
-    return poses != oldDelegate.poses ||
-           faces != oldDelegate.faces ||
-           poseToPlayerMap != oldDelegate.poseToPlayerMap ||
-           faceToPlayerMap != oldDelegate.faceToPlayerMap;
+    return poses != oldDelegate.poses || poseToPlayerMap != oldDelegate.poseToPlayerMap;
   }
 }
