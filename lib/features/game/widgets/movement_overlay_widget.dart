@@ -148,7 +148,7 @@ class PoseOverlayPainter extends CustomPainter {
       
       // Draw circle background
       final backgroundPaint = Paint()
-        ..color = color.withOpacity(0.8)
+        ..color = color.withValues(alpha: 0.8)
         ..style = PaintingStyle.fill;
       
       canvas.drawCircle(

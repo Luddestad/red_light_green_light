@@ -19,6 +19,7 @@ class _StartScreenState extends State<StartScreen> {
     return Scaffold(
       backgroundColor: Colors.black,
       body: Container(
+        height: double.infinity,
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
@@ -61,9 +62,9 @@ class _StartScreenState extends State<StartScreen> {
                 Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.1),
+                    color: Colors.white.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(15),
-                    border: Border.all(color: Colors.white.withOpacity(0.3)),
+                    border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
                   ),
                   child: const Column(
                     children: [
@@ -77,49 +78,16 @@ class _StartScreenState extends State<StartScreen> {
                       ),
                       SizedBox(height: 15),
                       Text(
-                        '🟢 GREEN LIGHT: Move towards the camera\n'
-                        '🔴 RED LIGHT: Freeze completely!\n'
-                        '❌ Any movement during red light = ELIMINATION\n'
-                        '🏆 Last player standing wins!',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          height: 1.5,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
-                  ),
-                ),
-                
-                const SizedBox(height: 30),
-                
-                // Single-player instruction
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(15),
-                    border: Border.all(color: Colors.white.withOpacity(0.3)),
-                  ),
-                  child: Column(
-                    children: const [
-                      Text(
-                        '1 PLAYER MODE',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      SizedBox(height: 12),
-                      Text(
-                        'Stand in front of the camera. The game will detect your movement using pose detection.',
+                        '🟢    GREEN LIGHT: Move towards the camera\n'
+                        '🔴    RED LIGHT: Freeze completely!\n'
+                        '❌    Any movement during red light = ELIMINATION\n'
+                        '🏆    Reach the phone to win!',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 14,
+                          height: 3,
                         ),
-                        textAlign: TextAlign.center,
+                        textAlign: TextAlign.start,
                       ),
                     ],
                   ),
@@ -129,11 +97,12 @@ class _StartScreenState extends State<StartScreen> {
                 
                 // Difficulty selection
                 Container(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(18),
+                  width: 375,
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.1),
+                    color: Colors.white.withValues(alpha:0.1),
                     borderRadius: BorderRadius.circular(15),
-                    border: Border.all(color: Colors.white.withOpacity(0.3)),
+                    border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
                   ),
                   child: Column(
                     children: [
@@ -159,7 +128,7 @@ class _StartScreenState extends State<StartScreen> {
                       Text(
                         _selectedDifficulty.description,
                         style: TextStyle(
-                          color: Colors.white.withOpacity(0.8),
+                          color: Colors.white.withValues(alpha: 0.8),
                           fontSize: 14,
                           fontStyle: FontStyle.italic,
                         ),
@@ -169,7 +138,20 @@ class _StartScreenState extends State<StartScreen> {
                   ),
                 ),
                 
-                const SizedBox(height: 30),
+                const SizedBox(height: 100),
+                
+                                // Info text
+                Text(
+                  'Make sure you are visible in the camera before starting',
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.7),
+                    fontSize: 14,
+                    fontStyle: FontStyle.italic,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+
+                const SizedBox(height: 20),
                 
                 // Start game button
                 SizedBox(
@@ -191,7 +173,7 @@ class _StartScreenState extends State<StartScreen> {
                         const Icon(Icons.play_arrow, size: 30),
                         const SizedBox(width: 10),
                         const Text(
-                          'START GAME (1 Player)',
+                          'START GAME',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -202,21 +184,10 @@ class _StartScreenState extends State<StartScreen> {
                   ),
                 ),
                 
-                const SizedBox(height: 20),
+                const SizedBox(height: 60),
                 
-                // Info text
-                Text(
-                  'Make sure all players are visible in the camera before starting',
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.7),
-                    fontSize: 14,
-                    fontStyle: FontStyle.italic,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
                 
                 // Add bottom padding for scroll space
-                const SizedBox(height: 30),
               ], // Main Column children
             ), // Column
           ), // Padding
@@ -242,7 +213,7 @@ class _StartScreenState extends State<StartScreen> {
         decoration: BoxDecoration(
           color: isSelected ? _getDifficultyColor(difficulty.level) : Colors.transparent,
           border: Border.all(
-            color: isSelected ? _getDifficultyColor(difficulty.level) : Colors.white.withOpacity(0.5),
+            color: isSelected ? _getDifficultyColor(difficulty.level) : Colors.white.withValues(alpha: 0.5),
             width: 2,
           ),
           borderRadius: BorderRadius.circular(20),
@@ -250,7 +221,7 @@ class _StartScreenState extends State<StartScreen> {
         child: Text(
           difficulty.displayName,
           style: TextStyle(
-            color: isSelected ? Colors.white : Colors.white.withOpacity(0.8),
+            color: isSelected ? Colors.white : Colors.white.withValues(alpha:0.8),
             fontSize: 12,
             fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
           ),
@@ -274,9 +245,8 @@ class _StartScreenState extends State<StartScreen> {
 
   void _startGame() {
     Navigator.of(context).push(
-                  MaterialPageRoute(
+      MaterialPageRoute(
         builder: (context) => GameScreen(
-          playerCount: 1,
           difficulty: _selectedDifficulty,
         ),
       ),

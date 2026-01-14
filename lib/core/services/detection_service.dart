@@ -108,7 +108,7 @@ class DetectionService {
       return null;
     }
 
-    return MovementDetector.(
+    return MovementDetector.detectMovement(
       currentPoses: currentPoses,
       referencePoses: _referencePoses,
       poseToPlayerMap: _poseToPlayerMap,

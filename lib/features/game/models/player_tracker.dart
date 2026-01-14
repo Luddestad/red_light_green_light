@@ -1,7 +1,5 @@
 import 'package:google_mlkit_pose_detection/google_mlkit_pose_detection.dart';
 import 'dart:math' as math;
-// distance_adaptive_detection removed from single-player tracker
-
 /// Robust player tracking system for Red Light Green Light
 class PlayerTracker {
   final int playerIndex;
@@ -172,9 +170,6 @@ class PlayerTracker {
     } else if (!_isStable && wasStable) {
       print('❌ $playerName: LOST STABILITY (${_stableFrames}/${_requiredStableFrames} frames)');
     }
-    
-    // Debug: Log current state each time
-    print('🔍 $playerName: Stability state check - _isStable: $_isStable, frames: ${_stableFrames}/${_requiredStableFrames}');
   }
 
   /// Check for movement compared to baseline using distance-adaptive detection
