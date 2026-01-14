@@ -30,7 +30,7 @@ class AudioService {
       final voices = await _tts.getVoices;
       if (voices != null) {
         for (final voice in voices) {
-          final voiceMap = voice as Map<String, dynamic>;
+          final voiceMap = Map<String, dynamic>.from(voice as Map);
           final name = (voiceMap['name'] ?? '').toString().toLowerCase();
           final gender = (voiceMap['gender'] ?? '').toString().toLowerCase();
 
@@ -49,7 +49,6 @@ class AudioService {
               if (v != null) voiceData[key] = v.toString();
             });
             await _tts.setVoice(voiceData);
-            print('Set female voice: ${voiceMap['name']}');
             break;
           }
         }
