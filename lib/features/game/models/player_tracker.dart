@@ -1,19 +1,11 @@
 import 'package:google_mlkit_pose_detection/google_mlkit_pose_detection.dart';
-import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'dart:math' as math;
-import 'distance_adaptive_detection.dart';
-
 /// Robust player tracking system for Red Light Green Light
 class PlayerTracker {
   final int playerIndex;
   final String playerName;
   
-  // Face tracking
-  Face? _currentFace;
-  Face? _baselineFace;
-  List<Face> _recentFaces = [];
-  
-  // Pose tracking
+  // Pose tracking (single-player simplified)
   Pose? _currentPose;
   Pose? _baselinePose;
   List<Pose> _recentPoses = [];
@@ -42,45 +34,14 @@ class PlayerTracker {
 
   /// Update player tracking with new detection results
   void updateDetection({
-    List<Face>? faces,
     List<Pose>? poses,
   }) {
-    _updateFaceTracking(faces);
     _updatePoseTracking(poses);
     _updatePositionEstimate();
     _updateStability();
   }
 
-  /// Update face tracking
-  void _updateFaceTracking(List<Face>? faces) {
-    if (faces == null || faces.isEmpty) {
-      _currentFace = null;
-      return;
-    }
-
-    // Find the best matching face based on position continuity
-    Face? bestMatch;
-    double bestScore = double.infinity;
-
-    for (final face in faces) {
-      // Score based on distance from expected position and face size
-      double score = _scoreFaceMatch(face);
-      if (score < bestScore) {
-        bestScore = score;
-        bestMatch = face;
-      }
-    }
-
-    if (bestMatch != null) {
-      _currentFace = bestMatch;
-      _recentFaces.add(bestMatch);
-      
-      // Keep only recent faces
-      if (_recentFaces.length > 10) {
-        _recentFaces.removeAt(0);
-      }
-    }
-  }
+  // Face tracking removed for single-player simplification
 
   /// Update pose tracking
   void _updatePoseTracking(List<Pose>? poses) {
@@ -116,29 +77,7 @@ class PlayerTracker {
   }
 
   /// Score how well a face matches this player's expected position
-  double _scoreFaceMatch(Face face) {
-    if (_recentFaces.isEmpty) {
-      // For initial detection, prefer faces in reasonable positions
-      final center = face.boundingBox.center;
-      return math.sqrt(math.pow(center.dx - 640, 2) + math.pow(center.dy - 360, 2)); // Distance from center
-    }
-
-    // Score based on continuity with recent faces
-    final recentFace = _recentFaces.last;
-    final currentCenter = face.boundingBox.center;
-    final recentCenter = recentFace.boundingBox.center;
-    
-    final distance = math.sqrt(
-      math.pow(currentCenter.dx - recentCenter.dx, 2) + 
-      math.pow(currentCenter.dy - recentCenter.dy, 2)
-    );
-    
-    // Also consider face size consistency
-    final sizeRatio = face.boundingBox.width / recentFace.boundingBox.width;
-    final sizePenalty = math.max(sizeRatio, 1.0 / sizeRatio) - 1.0;
-    
-    return distance + (sizePenalty * 100);
-  }
+  // Face matching removed
 
   /// Score how well a pose matches this player's expected position
   double _scorePoseMatch(Pose pose) {
@@ -184,16 +123,6 @@ class PlayerTracker {
     double y = 0.0;
     double confidence = 0.0;
     int sources = 0;
-
-    // Use face position if available
-    if (_currentFace != null) {
-      final faceCenter = _currentFace!.boundingBox.center;
-      x += faceCenter.dx;
-      y += faceCenter.dy;
-      confidence += 0.8; // Face detection is quite reliable
-      sources++;
-    }
-
     // Use pose position if available
     if (_currentPose != null) {
       final nose = _currentPose!.landmarks[PoseLandmarkType.nose];
@@ -219,8 +148,7 @@ class PlayerTracker {
   /// Update stability tracking
   void _updateStability() {
     // Check if player detection is stable
-    bool hasValidDetection = (_currentFace != null) || 
-                           (_currentPose != null && _getPoseValidLandmarks(_currentPose!) >= 1); // Reduced from 3 to 1
+    bool hasValidDetection = (_currentPose != null && _getPoseValidLandmarks(_currentPose!) >= 1); // Reduced from 3 to 1
 
     if (hasValidDetection) { // Simplified: just check for valid detection, ignore confidence for now
       _stableFrames++;
@@ -242,9 +170,6 @@ class PlayerTracker {
     } else if (!_isStable && wasStable) {
       print('❌ $playerName: LOST STABILITY (${_stableFrames}/${_requiredStableFrames} frames)');
     }
-    
-    // Debug: Log current state each time
-    print('🔍 $playerName: Stability state check - _isStable: $_isStable, frames: ${_stableFrames}/${_requiredStableFrames}');
   }
 
   /// Check for movement compared to baseline using distance-adaptive detection
@@ -318,7 +243,6 @@ class PlayerTracker {
   /// Set baseline pose explicitly (called when red light starts)
   void setBaseline(Pose pose) {
     _baselinePose = pose;
-    _baselineFace = _currentFace; // Capture current face as baseline too
     _movementFrames = 0;
     _isMoving = false;
     print('📍 Baseline set for $playerName with ${_getPoseValidLandmarks(pose)} valid landmarks');
@@ -327,7 +251,6 @@ class PlayerTracker {
   /// Reset baseline pose (called when green light starts)
   void resetBaseline() {
     _baselinePose = null;
-    _baselineFace = null;
     _movementFrames = 0;
     _isMoving = false;
     print('🔄 Baseline reset for $playerName');
@@ -339,35 +262,29 @@ class PlayerTracker {
   }
 
   // Getters
-  bool get isDetected => (_currentFace != null) || (_currentPose != null);
+  bool get isDetected => (_currentPose != null);
   bool get isStable => _isStable;
   bool get isMoving => _isMoving;
   double get confidence => _confidenceScore;
   double get positionX => _averageX;
   double get positionY => _averageY;
   double get estimatedDistance => _estimatedDistance;
-  Face? get currentFace => _currentFace;
   Pose? get currentPose => _currentPose;
   Pose? get baselinePose => _baselinePose;
   
   /// Force assignment of specific detections (for spatial conflict resolution)
-  void forceAssignment({Face? face, Pose? pose}) {
-    _currentFace = face;
+  void forceAssignment({Pose? pose}) {
     _currentPose = pose;
     
     // Add to recent history for proper tracking
-    if (face != null) {
-      _recentFaces.add(face);
-      if (_recentFaces.length > 5) _recentFaces.removeAt(0);
-    }
     if (pose != null) {
       _recentPoses.add(pose);
       if (_recentPoses.length > 5) _recentPoses.removeAt(0);
     }
     
     // When we have a reliable spatial assignment, boost stability
-    if (face != null || pose != null) {
-      _stableFrames = math.max(_stableFrames, 4); // Jump to 4/6 frames when spatially assigned
+    if (pose != null) {
+      _stableFrames = math.max(_stableFrames, 4);
     }
     
     _updatePositionEstimate();
@@ -376,7 +293,6 @@ class PlayerTracker {
 
   /// Clear all current detections
   void clearDetection() {
-    _currentFace = null;
     _currentPose = null;
     _confidenceScore = 0.0;
     // Don't reset stability immediately to avoid flicker

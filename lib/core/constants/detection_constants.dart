@@ -19,14 +19,12 @@ class DetectionConstants {
   ];
   
   // Face Recognition Settings
-  static const double faceRecognitionThreshold = 0.8;
-  static const int maxFaceEncodingsPerPlayer = 3;
-  static const double faceDetectionConfidence = 0.7;
+  // Face recognition removed for single-player mode
   
   // Detection Performance
   static const int detectionFrameRate = 30;
   static const int poseDetectionInterval = 100; // milliseconds
-  static const int faceDetectionInterval = 500; // milliseconds
+  // faceDetectionInterval removed
   
   // Camera Settings
   static const double cameraAspectRatio = 16 / 9;

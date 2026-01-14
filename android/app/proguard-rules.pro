@@ -25,8 +25,7 @@
 -keep class com.google.mlkit.vision.pose.** { *; }
 -keep class com.google.mlkit.vision.common.** { *; }
 
-# Face Detection  
--keep class com.google.mlkit.vision.face.** { *; }
+
 
 # Camera
 -keep class androidx.camera.** { *; }

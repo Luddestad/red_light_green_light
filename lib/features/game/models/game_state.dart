@@ -75,28 +75,19 @@ class GameSession {
        lastStateChange = lastStateChange ?? DateTime.now();
 
   /// Get active (non-eliminated) players
-  List<PlayerPosition> get activePlayers => 
+  List<PlayerPosition> get activePlayers =>
       playerPositions.where((p) => !p.isEliminated).toList();
 
-  /// Check if game is over 
+  /// Check if game is over (single player mode)
   bool get isGameOver {
     // Single player: game over only if player is eliminated
-    if (playerPositions.length == 1) {
-      return activePlayers.isEmpty;
-    }
-    // Multi-player: game over when 0 or 1 players left
-    return activePlayers.length <= 1;
+    return activePlayers.isEmpty;
   }
 
-  /// Get winner position if game is over
+  /// Get winner position if game is over (single player mode)
   PlayerPosition? get winner {
     if (!isGameOver) return null;
-    
-    // Single player: no winner if eliminated, otherwise winner is the player
-    if (playerPositions.length == 1) {
-      return activePlayers.isNotEmpty ? activePlayers.first : null;
-    }
-    // Multi-player: winner is the last remaining player
+    // Single player: no winner if eliminated
     return activePlayers.isNotEmpty ? activePlayers.first : null;
   }
   
@@ -121,18 +112,17 @@ class GameSession {
     }
   }
 
-  /// Initialize player positions (up to 4 players)
+  /// Initialize player position (single player mode)
   void initializePositions(int playerCount) {
     playerPositions.clear();
     eliminatedPlayers.clear();
-    
-    for (int i = 0; i < playerCount && i < 4; i++) {
-      playerPositions.add(PlayerPosition(
-        positionIndex: i,
-        positionName: 'Position ${i + 1}',
-        baselinePose: [], // Will be set when game starts
-      ));
-    }
+
+    // Always create exactly one player for single-player mode
+    playerPositions.add(PlayerPosition(
+      positionIndex: 0,
+      positionName: 'Player',
+      baselinePose: [], // Will be set when game starts
+    ));
   }
 
   /// Set baseline poses for all positions

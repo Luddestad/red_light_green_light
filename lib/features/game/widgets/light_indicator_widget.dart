@@ -18,7 +18,7 @@ class LightIndicatorWidget extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 20),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: _getBackgroundColor().withOpacity(0.9),
+        color: _getBackgroundColor().withValues(alpha: 0.9),
         borderRadius: BorderRadius.circular(15),
         border: Border.all(
           color: _getBorderColor(),
@@ -26,7 +26,7 @@ class LightIndicatorWidget extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: _getBorderColor().withOpacity(0.5),
+            color: _getBorderColor().withValues(alpha: 0.5),
             blurRadius: 10,
             spreadRadius: 2,
           ),
@@ -45,7 +45,7 @@ class LightIndicatorWidget extends StatelessWidget {
               border: Border.all(color: Colors.white, width: 3),
               boxShadow: [
                 BoxShadow(
-                  color: _getLightColor().withOpacity(0.6),
+                  color: _getLightColor().withValues(alpha: 0.6),
                   blurRadius: 20,
                   spreadRadius: 5,
                 ),
