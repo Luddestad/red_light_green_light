@@ -71,8 +71,8 @@ class _GameScreenState extends State<GameScreen> {
       greenLightDuration: widget.difficulty.getGreenLightDuration(),
       redLightDuration: widget.difficulty.getRedLightDuration(),
     );
-    // Single-player game: initialize a single player position
-    _gameSession.initializePositions(1);
+    // Single-player game: initialize player position
+    _gameSession.initializePositions();
 
     // Initialize services (face detection disabled for single-player)
     await _cameraService.initialize();
@@ -431,7 +431,7 @@ class _GameScreenState extends State<GameScreen> {
   void _restartGame() {
     // Reset game session
     _gameSession = GameSession();
-    _gameSession.initializePositions(1);
+    _gameSession.initializePositions();
 
     // Reset detection state
     _currentPose = null;

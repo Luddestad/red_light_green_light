@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 /// Game state enumeration and management
 enum GameState {
   waiting, // Waiting for players to get in position
@@ -86,11 +84,11 @@ class GameSession {
   }
 
   /// Initialize player position (single player mode)
-  void initializePositions(int playerCount) {
+  void initializePositions() {
     playerPositions.clear();
     eliminatedPlayers.clear();
 
-    // Always create exactly one player for single-player mode
+    // Create single player for single-player mode
     playerPositions.add(
       PlayerPosition(
         baselinePose: [], // Will be set when game starts

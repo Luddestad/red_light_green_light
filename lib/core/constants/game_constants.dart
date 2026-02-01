@@ -1,9 +1,5 @@
 /// Game-specific constants
 class GameConstants {
-  // Player Limits
-  static const int maxPlayers = 4;
-  static const int minPlayers = 1;
-
   // Game Timing
   static const int countdownDuration = 30; // seconds
   static const int minLightDuration = 3; // seconds
@@ -19,9 +15,6 @@ class GameConstants {
   static const int maxRounds = 50; // Maximum rounds before game ends
   static const int eliminationDelay =
       1000; // milliseconds before elimination announcement
-
-  // Win Conditions
-  static const int playersToWin = 1; // Last player standing wins
 
   // UI Constants
   static const double lightIndicatorSize = 120.0;

@@ -82,10 +82,6 @@ class AudioService {
     await playSoundEffect('eliminated.wav');
   }
 
-  Future<void> playCountdownSound() async {
-    await playSoundEffect('countdown.mp3');
-  }
-
   Future<void> playGameOverSound() async {
     await playSoundEffect('game_over.wav');
   }
@@ -131,10 +127,6 @@ class AudioService {
         await Future.delayed(
           const Duration(milliseconds: 300),
         ); // Slightly longer delay
-        await speak(message);
-        break;
-      case 'countdown':
-        await playCountdownSound();
         await speak(message);
         break;
       case 'game_over':

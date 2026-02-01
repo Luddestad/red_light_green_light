@@ -39,7 +39,7 @@ class DetectionConstants {
 
   // Pose Quality
   static const double minimumPoseConfidence = 0.5;
-  static const int maxPosesPerFrame = 4; // Maximum 4 players
+  static const int maxPosesPerFrame = 1; // Single player mode
 
   // Error Handling
   static const int maxDetectionFailures = 5;

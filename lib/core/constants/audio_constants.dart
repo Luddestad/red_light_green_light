@@ -15,12 +15,12 @@ class AudioConstants {
   static const String winnerText = 'Congratulations! You are the winner!';
   static const String eliminationText = 'You are out!';
   
-  // Audio File Paths
-  static const String redLightSoundPath = 'assets/sounds/red_light.mp3';
-  static const String greenLightSoundPath = 'assets/sounds/green_light.mp3';
-  static const String eliminationSoundPath = 'assets/sounds/elimination.mp3';
-  static const String countdownSoundPath = 'assets/sounds/countdown.mp3';
-  static const String backgroundMusicPath = 'assets/sounds/background_music.mp3';
+  // Audio File Paths (matching actual files in assets/sounds/)
+  static const String redLightSoundPath = 'assets/sounds/red_light.wav';
+  static const String eliminationSoundPath = 'assets/sounds/eliminated.wav';
+  static const String gameOverSoundPath = 'assets/sounds/game_over.wav';
+  static const String victorySoundPath = 'assets/sounds/victory.wav';
+  static const String lobbySoundPath = 'assets/sounds/lobby.wav';
   
   // Audio Settings
   static const double soundEffectVolume = 0.7;
