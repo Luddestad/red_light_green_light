@@ -49,25 +49,16 @@ class PoseLandmarkData {
 class PoseData {
   final List<PoseLandmarkData> landmarks;
   final DateTime timestamp;
-  final String? playerId; // Associated player ID if known
 
-  const PoseData({
-    required this.landmarks,
-    required this.timestamp,
-    this.playerId,
-  });
+  const PoseData({required this.landmarks, required this.timestamp});
 
   /// Create from Google ML Kit Pose
   factory PoseData.fromPose(Pose pose, {String? playerId}) {
     final landmarks = pose.landmarks.values
         .map((landmark) => PoseLandmarkData.fromPoseLandmark(landmark))
         .toList();
-    
-    return PoseData(
-      landmarks: landmarks,
-      timestamp: DateTime.now(),
-      playerId: playerId,
-    );
+
+    return PoseData(landmarks: landmarks, timestamp: DateTime.now());
   }
 
   /// Get landmark by type
@@ -81,7 +72,9 @@ class PoseData {
 
   /// Get multiple landmarks by types
   List<PoseLandmarkData> getLandmarksByTypes(List<PoseLandmarkType> types) {
-    return landmarks.where((landmark) => types.contains(landmark.type)).toList();
+    return landmarks
+        .where((landmark) => types.contains(landmark.type))
+        .toList();
   }
 
   /// Check if pose has sufficient landmarks for movement detection
@@ -93,9 +86,10 @@ class PoseData {
       PoseLandmarkType.rightHip,
       PoseLandmarkType.nose,
     ];
-    
-    return requiredLandmarks.every((type) => 
-        getLandmarkByType(type)?.isValid == true);
+
+    return requiredLandmarks.every(
+      (type) => getLandmarkByType(type)?.isValid == true,
+    );
   }
 
   /// Calculate pose center point
@@ -104,14 +98,15 @@ class PoseData {
       getLandmarkByType(PoseLandmarkType.leftShoulder),
       getLandmarkByType(PoseLandmarkType.rightShoulder),
     ].where((landmark) => landmark != null).cast<PoseLandmarkData>().toList();
-    
+
     if (shoulders.length != 2) return null;
-    
+
     final avgX = shoulders.map((s) => s.x).reduce((a, b) => a + b) / 2;
     final avgY = shoulders.map((s) => s.y).reduce((a, b) => a + b) / 2;
     final avgZ = shoulders.map((s) => s.z).reduce((a, b) => a + b) / 2;
-    final avgLikelihood = shoulders.map((s) => s.likelihood).reduce((a, b) => a + b) / 2;
-    
+    final avgLikelihood =
+        shoulders.map((s) => s.likelihood).reduce((a, b) => a + b) / 2;
+
     return PoseLandmarkData(
       type: PoseLandmarkType.nose, // Use nose as center type
       x: avgX,
@@ -123,6 +118,6 @@ class PoseData {
 
   @override
   String toString() {
-    return 'PoseData(landmarks: ${landmarks.length}, timestamp: $timestamp, playerId: $playerId)';
+    return 'PoseData(landmarks: ${landmarks.length}, timestamp: $timestamp, playerId: ';
   }
 }

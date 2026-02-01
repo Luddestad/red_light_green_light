@@ -3,7 +3,6 @@ import 'package:camera/camera.dart';
 import 'pose_detection_service.dart';
 import '../../features/game/models/pose_landmark.dart';
 import '../../features/game/models/movement_detection.dart';
-// Face registration removed; registration model not required
 
 /// Combined detection service for face and pose detection
 class DetectionService {
@@ -11,12 +10,11 @@ class DetectionService {
   factory DetectionService() => _instance;
   DetectionService._internal();
 
-  // Face detection removed — pose detection only for single-player mode
   final PoseDetectionService _poseService = PoseDetectionService();
-  
+
   bool _isInitialized = false;
   StreamController<DetectionResult>? _detectionStreamController;
-  
+
   // Detection state
   List<PoseData> _referencePoses = [];
   Map<String, String> _poseToPlayerMap = {};
@@ -25,21 +23,23 @@ class DetectionService {
   // Getters
   bool get isInitialized => _isInitialized;
   bool get isDetecting => _isDetecting;
-  Stream<DetectionResult>? get detectionStream => _detectionStreamController?.stream;
+  Stream<DetectionResult>? get detectionStream =>
+      _detectionStreamController?.stream;
 
   /// Initialize the detection service
   Future<bool> initialize() async {
     try {
-  // Initialize pose service for single-player mode.
-  final poseInitialized = await _poseService.initialize();
+      // Initialize pose service for single-player mode.
+      final poseInitialized = await _poseService.initialize();
 
       if (!poseInitialized) {
         return false;
       }
 
       // Initialize detection stream
-      _detectionStreamController = StreamController<DetectionResult>.broadcast();
-      
+      _detectionStreamController =
+          StreamController<DetectionResult>.broadcast();
+
       _isInitialized = true;
       return true;
     } catch (e) {
@@ -74,7 +74,6 @@ class DetectionService {
 
       // Emit result
       _detectionStreamController?.add(detectionResult);
-
     } catch (e) {
       // Log the error but don't crash the app
       if (e.toString().contains('Unsupported camera image format')) {
@@ -94,10 +93,11 @@ class DetectionService {
     }
   }
 
-
-
   /// Set reference poses for movement detection
-  void setReferencePoses(List<PoseData> referencePoses, Map<String, String> poseToPlayerMap) {
+  void setReferencePoses(
+    List<PoseData> referencePoses,
+    Map<String, String> poseToPlayerMap,
+  ) {
     _referencePoses = List.from(referencePoses);
     _poseToPlayerMap = Map.from(poseToPlayerMap);
   }
@@ -130,13 +130,13 @@ class DetectionService {
   /// Dispose resources
   Future<void> dispose() async {
     try {
-  await _detectionStreamController?.close();
-  await _poseService.dispose();
+      await _detectionStreamController?.close();
+      await _poseService.dispose();
 
-  _detectionStreamController = null;
-  _isInitialized = false;
-  _referencePoses.clear();
-  _poseToPlayerMap.clear();
+      _detectionStreamController = null;
+      _isInitialized = false;
+      _referencePoses.clear();
+      _poseToPlayerMap.clear();
     } catch (e) {
       print('Error disposing detection service: $e');
     }

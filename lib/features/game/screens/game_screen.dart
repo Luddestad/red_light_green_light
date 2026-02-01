@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:google_mlkit_pose_detection/google_mlkit_pose_detection.dart';
+import 'package:red_light_green_light/core/constants/game_constants.dart';
 import 'dart:math' as math;
 import '../models/game_state.dart';
 import '../models/difficulty_settings.dart';
@@ -90,9 +91,7 @@ class _GameScreenState extends State<GameScreen> {
     setState(() {});
 
     // Announce game start (single-player)
-    await _audioService.speak(
-      'Welcome to Red Light Green Light! Get in your position. Game will start in 20 seconds.',
-    );
+    await _audioService.speak(GameConstants.welcomeMessage);
 
     _startCountdown();
   }
@@ -107,7 +106,7 @@ class _GameScreenState extends State<GameScreen> {
         timer.cancel();
         _startGame();
       } else if (_countdownSeconds == 5) {
-        _audioService.speak('5 seconds until game starts! Get ready!');
+        _audioService.speak(GameConstants.fiveSecondsLeft);
       } else if (_countdownSeconds <= 4) {
         _audioService.speak(_countdownSeconds.toString());
       }
@@ -117,9 +116,7 @@ class _GameScreenState extends State<GameScreen> {
   Future<void> _startGame() async {
     // Check if player is stable
     if (!_isPlayerStable) {
-      await _audioService.speak(
-        'Waiting for stable detection. Stand in front of the camera and stay very still for a few seconds.',
-      );
+      await _audioService.speak(GameConstants.waitingForStableConnection);
       return;
     }
 
@@ -139,7 +136,7 @@ class _GameScreenState extends State<GameScreen> {
     _gameSession.advanceState(); // Move to countdown
     _gameSession.advanceState(); // Move to green light
 
-    await _audioService.speak('Game started! Green light!');
+    await _audioService.speak(GameConstants.gameStarted);
 
     _startGameLoop();
     setState(() {});
@@ -181,7 +178,7 @@ class _GameScreenState extends State<GameScreen> {
   Future<void> _switchToRedLight() async {
     // Play red light sound and announcement first, THEN start detection
     try {
-      await _audioService.announceRedLight('Red light! Freeze!');
+      await _audioService.announceRedLight(GameConstants.redLightMessage);
     } catch (e) {
       // Continue anyway - don't let audio issues block game functionality
     }
@@ -207,7 +204,7 @@ class _GameScreenState extends State<GameScreen> {
           .getGreenLightDuration();
 
       _gameSession.advanceState(); // Move to green light
-      await _audioService.speak('Green light! Go!');
+      await _audioService.speak(GameConstants.greenLightMessage);
     }
     setState(() {});
   }
@@ -303,9 +300,7 @@ class _GameScreenState extends State<GameScreen> {
     // Announce when player is first detected
     if (_isPlayerDetected && !_playerDetectionAnnounced) {
       _playerDetectionAnnounced = true;
-      await _audioService.speak(
-        'Player detected! Great, I can see you clearly.',
-      );
+      await _audioService.speak(GameConstants.playerDetectedLobby);
       print('🎤 Announced player detection');
     }
 
@@ -313,9 +308,7 @@ class _GameScreenState extends State<GameScreen> {
     if (_isPlayerStable &&
         _playerDetectionAnnounced &&
         _countdownSeconds > 10) {
-      await _audioService.speak(
-        'Perfect! You are stable and ready to play. Stand still and wait for the countdown!',
-      );
+      await _audioService.speak(GameConstants.playerStable);
       print('🎤 Announced player ready');
 
       // Auto-reduce countdown
@@ -323,9 +316,7 @@ class _GameScreenState extends State<GameScreen> {
       setState(() {});
 
       await Future.delayed(const Duration(milliseconds: 500));
-      await _audioService.speak(
-        'Great! Since you are ready, the countdown has been reduced to 10 seconds!',
-      );
+      await _audioService.speak(GameConstants.reducedCountdown);
 
       _playerDetectionAnnounced = false; // Reset
     }
@@ -347,7 +338,7 @@ class _GameScreenState extends State<GameScreen> {
     if (moved) {
       print('🚨 Movement violation detected!');
       _isPlayerMoving = true;
-      await _eliminatePlayer(0);
+      _endGame();
     }
   }
 
@@ -396,48 +387,9 @@ class _GameScreenState extends State<GameScreen> {
     print('📊 Stability frames: $_stabilityFrames/4');
   }
 
-  // Old motion detection methods removed - now using robust PlayerTracker system
-
-  Future<void> _eliminatePlayer(int positionIndex) async {
-    print('🔥 _eliminatePlayer called for position $positionIndex');
-
-    final position = _gameSession.activePlayers.firstWhere(
-      (p) => p.positionIndex == positionIndex,
-    );
-
-    print('🔥 Found player: ${position.positionName}');
-    _gameSession.eliminatePlayer(positionIndex);
-
-    // Play elimination sound and announcement
-    await _audioService.announceElimination(
-      '${position.positionName} is eliminated! Movement detected during red light!',
-    );
-
-    if (_gameSession.isGameOver) {
-      _gameSession.advanceState(); // Move to game over
-    }
-
-    setState(() {});
-  }
-
   Future<void> _winGame() async {
     try {
       _gameTimer?.cancel();
-
-      // Set the winner (for single player, it's position 0)
-      if (_gameSession.activePlayers.isNotEmpty) {
-        final winnerPlayer = _gameSession.activePlayers.first;
-        _gameSession.winner = winnerPlayer;
-      } else {
-        print('🏆 No active players found, but setting winner anyway');
-        // For single player, create a winner position manually
-        if (_gameSession.playerPositions.isNotEmpty) {
-          _gameSession.winner = _gameSession.playerPositions.first;
-          print(
-            '🏆 Winner set from playerPositions: ${_gameSession.playerPositions.first.positionName}',
-          );
-        }
-      }
 
       // Set victory state (different from game over)
       _gameSession.currentState = GameState.victory;
@@ -465,16 +417,10 @@ class _GameScreenState extends State<GameScreen> {
   Future<void> _endGame() async {
     _gameTimer?.cancel();
 
-    String message;
-    if (_gameSession.winner != null) {
-      message =
-          'Game over! ${_gameSession.winner!.positionName} wins! Congratulations!';
-    } else {
-      message = 'Game over! I win! Better luck next time!';
-    }
-
     // Play game over sound and announcement
-    await _audioService.announceGameOver(message);
+    await _audioService.announceGameOver(
+      "Game over! I win! Better luck next time!",
+    );
 
     // Set to game over state to show the overlay
     _gameSession.currentState = GameState.gameOver;
@@ -506,7 +452,6 @@ class _GameScreenState extends State<GameScreen> {
     _startCountdown();
 
     setState(() {});
-    print('🔄 Game restarted');
   }
 
   /// Go back to home screen
@@ -514,7 +459,7 @@ class _GameScreenState extends State<GameScreen> {
     // Clean up
     _gameTimer?.cancel();
     _countdownTimer?.cancel();
-
+    _audioService.stopLobbySound();
     // Navigate back
     Navigator.of(context).pop();
   }

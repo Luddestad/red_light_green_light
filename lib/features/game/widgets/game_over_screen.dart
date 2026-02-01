@@ -18,15 +18,15 @@ class GameOverScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final winner = gameSession.winner;
     final bool playerWon = winner != null;
-    
+
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: playerWon 
-            ? [Colors.green.shade700, Colors.green.shade900]
-            : [Colors.red.shade700, Colors.red.shade900],
+          colors: playerWon
+              ? [Colors.green.shade700, Colors.green.shade900]
+              : [Colors.red.shade700, Colors.red.shade900],
         ),
       ),
       child: Center(
@@ -39,9 +39,9 @@ class GameOverScreen extends StatelessWidget {
               size: 120,
               color: Colors.white,
             ),
-            
+
             const SizedBox(height: 30),
-            
+
             // Game Over Title
             Text(
               'GAME OVER',
@@ -58,14 +58,12 @@ class GameOverScreen extends StatelessWidget {
                 ],
               ),
             ),
-            
+
             const SizedBox(height: 20),
-            
+
             // Winner/Loser Message
             Text(
-              playerWon 
-                ? 'CONGRATULATIONS!'
-                : 'I WIN!',
+              playerWon ? 'CONGRATULATIONS!' : 'I WIN!',
               style: TextStyle(
                 fontSize: 32,
                 fontWeight: FontWeight.bold,
@@ -79,14 +77,14 @@ class GameOverScreen extends StatelessWidget {
                 ],
               ),
             ),
-            
+
             const SizedBox(height: 10),
-            
+
             // Detailed Message
             Text(
-              playerWon 
-                ? 'You reached the phone and won!'
-                : 'Better luck next time!',
+              playerWon
+                  ? 'You reached the phone and won!'
+                  : 'Better luck next time!',
               style: const TextStyle(
                 fontSize: 18,
                 color: Colors.white70,
@@ -94,9 +92,9 @@ class GameOverScreen extends StatelessWidget {
               ),
               textAlign: TextAlign.center,
             ),
-            
+
             const SizedBox(height: 40),
-            
+
             // Game Stats
             Container(
               padding: const EdgeInsets.all(20),
@@ -106,27 +104,10 @@ class GameOverScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(15),
                 border: Border.all(color: Colors.white24, width: 1),
               ),
-              child: Column(
-                children: [
-                  Text(
-                    'Game Stats',
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                  const SizedBox(height: 15),
-                  _buildStatRow('Rounds Completed', '${gameSession.currentRound}'),
-                  _buildStatRow('Players', '${gameSession.playerPositions.length}'),
-                  if (winner != null)
-                    _buildStatRow('Winner', winner.positionName),
-                ],
-              ),
             ),
-            
+
             const SizedBox(height: 40),
-            
+
             // Action Buttons
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -137,7 +118,10 @@ class GameOverScreen extends StatelessWidget {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green,
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 30,
+                      vertical: 15,
+                    ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(25),
                     ),
@@ -158,14 +142,17 @@ class GameOverScreen extends StatelessWidget {
                     ],
                   ),
                 ),
-                
+
                 // Home Button
                 ElevatedButton(
                   onPressed: onGoHome ?? () {},
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.grey.shade700,
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 30,
+                      vertical: 15,
+                    ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(25),
                     ),
@@ -190,32 +177,6 @@ class GameOverScreen extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildStatRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 5),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 16,
-              color: Colors.white70,
-            ),
-          ),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
-          ),
-        ],
       ),
     );
   }
