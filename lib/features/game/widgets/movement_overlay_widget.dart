@@ -37,38 +37,28 @@ class PoseOverlayPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     if (poses.isEmpty || cameraSize == Size.zero) return;
 
+    // Single player mode - use first pose with blue color
+    const Color playerColor = Colors.blue;
+    final pose = poses.first;
+
     final Paint posePaint = Paint()
       ..style = PaintingStyle.fill
-      ..strokeWidth = 3.0;
+      ..strokeWidth = 3.0
+      ..color = playerColor;
 
     final Paint connectionPaint = Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.0;
+      ..strokeWidth = 2.0
+      ..color = playerColor;
 
-    // Colors for different positions
-    final List<Color> playerColors = [
-      Colors.blue,
-      Colors.green,
-      Colors.yellow,
-      Colors.purple,
-    ];
-
-    for (int i = 0; i < poses.length && i < 4; i++) {
-      final pose = poses[i];
-      final color = playerColors[i % playerColors.length];
-      
-      posePaint.color = color;
-      connectionPaint.color = color;
-
-      // Draw pose landmarks
-      _drawPoseLandmarks(canvas, pose, size, posePaint);
-      
-      // Draw pose connections
-      _drawPoseConnections(canvas, pose, size, connectionPaint);
-      
-      // Draw position indicator
-      _drawPositionIndicator(canvas, pose, size, i + 1, color);
-    }
+    // Draw pose landmarks
+    _drawPoseLandmarks(canvas, pose, size, posePaint);
+    
+    // Draw pose connections
+    _drawPoseConnections(canvas, pose, size, connectionPaint);
+    
+    // Draw position indicator
+    _drawPositionIndicator(canvas, pose, size, 1, playerColor);
   }
 
   void _drawPoseLandmarks(Canvas canvas, Pose pose, Size canvasSize, Paint paint) {

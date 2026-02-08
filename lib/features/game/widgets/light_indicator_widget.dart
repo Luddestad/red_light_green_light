@@ -1,208 +1,239 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import '../models/game_state.dart';
 
-/// Widget that shows the current game state with visual indicator
-class LightIndicatorWidget extends StatelessWidget {
+/// Dual-circle light indicator for green/red light states during gameplay.
+/// Shows two circles side by side; the active one has a siren border animation
+class LightIndicatorWidget extends StatefulWidget {
   final GameState gameState;
-  final int? countdownSeconds;
 
-  const LightIndicatorWidget({
-    super.key,
-    required this.gameState,
-    this.countdownSeconds,
+  const LightIndicatorWidget({super.key, required this.gameState});
+
+  @override
+  State<LightIndicatorWidget> createState() => _LightIndicatorWidgetState();
+}
+
+class _LightIndicatorWidgetState extends State<LightIndicatorWidget>
+    with SingleTickerProviderStateMixin {
+  static const double _circleDiameter = 80;
+  static const double _borderWidth = 8;
+  static const double _gapBetweenCircles = 32;
+
+  late AnimationController _animationController;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 1500),
+      vsync: this,
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isGreenActive = widget.gameState == GameState.greenLight;
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 24),
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Colors.black,
+            Colors.black87,
+            Colors.grey.shade900,
+          ],
+        ),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: Colors.grey.shade800, width: 2),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.5),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: AnimatedBuilder(
+        animation: _animationController,
+        builder: (context, child) {
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _LightCircle(
+                color: Colors.green,
+                isActive: isGreenActive,
+                animationValue: _animationController.value,
+                size: _circleDiameter,
+                borderWidth: _borderWidth,
+              ),
+              const SizedBox(width: _gapBetweenCircles),
+              _LightCircle(
+                color: Colors.red,
+                isActive: !isGreenActive,
+                animationValue: _animationController.value,
+                size: _circleDiameter,
+                borderWidth: _borderWidth,
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _LightCircle extends StatelessWidget {
+  final Color color;
+  final bool isActive;
+  final double animationValue;
+  final double size;
+  final double borderWidth;
+
+  const _LightCircle({
+    required this.color,
+    required this.isActive,
+    required this.animationValue,
+    required this.size,
+    required this.borderWidth,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: _getBackgroundColor().withValues(alpha: 0.9),
-        borderRadius: BorderRadius.circular(15),
-        border: Border.all(
-          color: _getBorderColor(),
-          width: 3,
+    final centerBright = isActive
+        ? color.withValues(alpha: 1.0)
+        : color.withValues(alpha: 0.5);
+    final edgeColor = isActive
+        ? color.withValues(alpha: 0.7)
+        : color.withValues(alpha: 0.3);
+
+    final circle = Stack(
+      alignment: Alignment.center,
+      children: [
+        Container(
+          width: size,
+          height: size,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: RadialGradient(
+              center: Alignment.center,
+              radius: 0.95,
+              colors: [
+                centerBright,
+                edgeColor,
+              ],
+            ),
+            boxShadow: isActive
+                ? [
+                    BoxShadow(
+                      color: color.withValues(alpha: 0.8),
+                      blurRadius: 16,
+                      spreadRadius: 2,
+                    ),
+                  ]
+                : null,
+          ),
         ),
-        boxShadow: [
-          BoxShadow(
-            color: _getBorderColor().withValues(alpha: 0.5),
-            blurRadius: 10,
-            spreadRadius: 2,
-          ),
-        ],
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Light circle indicator
-          Container(
-            width: 80,
-            height: 80,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: _getLightColor(),
-              border: Border.all(color: Colors.white, width: 3),
-              boxShadow: [
-                BoxShadow(
-                  color: _getLightColor().withValues(alpha: 0.6),
-                  blurRadius: 20,
-                  spreadRadius: 5,
-                ),
-              ],
-            ),
-            child: _buildLightContent(),
-          ),
-          const SizedBox(height: 15),
-          
-          // State text
-          Text(
-            _getStateText(),
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-              shadows: [
-                Shadow(
-                  color: Colors.black,
-                  blurRadius: 2,
-                  offset: Offset(1, 1),
-                ),
-              ],
-            ),
-            textAlign: TextAlign.center,
-          ),
-          
-          // Countdown display
-          if (countdownSeconds != null) ...[
-            const SizedBox(height: 10),
-            Text(
-              '$countdownSeconds',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 48,
-                fontWeight: FontWeight.bold,
-                shadows: [
-                  Shadow(
-                    color: Colors.black,
-                    blurRadius: 3,
-                    offset: Offset(2, 2),
-                  ),
-                ],
+        if (isActive)
+          SizedBox(
+            width: size,
+            height: size,
+            child: CustomPaint(
+              painter: _SirenCirclePainter(
+                baseColor: color,
+                animationValue: animationValue,
+                borderWidth: borderWidth,
               ),
             ),
-          ],
-        ],
+          ),
+      ],
+    );
+
+    if (isActive) {
+      return circle;
+    }
+
+    return Opacity(
+      opacity: 0.35,
+      child: ColorFiltered(
+        colorFilter: ColorFilter.mode(
+          Colors.grey,
+          BlendMode.saturation,
+        ),
+        child: circle,
       ),
     );
   }
+}
 
-  Color _getBackgroundColor() {
-    switch (gameState) {
-      case GameState.waiting:
-        return Colors.blue.shade800;
-      case GameState.countdown:
-        return Colors.orange.shade800;
-      case GameState.greenLight:
-        return Colors.green.shade800;
-      case GameState.redLight:
-        return Colors.red.shade800;
-      case GameState.victory:
-        return Colors.green.shade800;
-      case GameState.gameOver:
-        return Colors.purple.shade800;
-    }
+class _SirenCirclePainter extends CustomPainter {
+  final Color baseColor;
+  final double animationValue;
+  final double borderWidth;
+
+  _SirenCirclePainter({
+    required this.baseColor,
+    required this.animationValue,
+    required this.borderWidth,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = size.shortestSide / 2 - borderWidth / 2;
+    final rect = Rect.fromCircle(center: center, radius: radius + borderWidth);
+
+    final dimColor = baseColor.withValues(alpha: 0.25);
+    final midColor = Color.lerp(baseColor, Colors.white, 0.3) ?? baseColor;
+    final brightColor = Color.lerp(baseColor, Colors.white, 0.6) ?? baseColor;
+
+    final gradient = SweepGradient(
+      center: Alignment.center,
+      startAngle: 0,
+      endAngle: 2 * math.pi,
+      colors: [
+        dimColor,
+        dimColor,
+        midColor,
+        brightColor,
+        brightColor,
+        midColor,
+        dimColor,
+        dimColor,
+      ],
+      stops: const [0.0, 0.06, 0.14, 0.22, 0.30, 0.38, 0.46, 0.54],
+      transform: GradientRotation(animationValue * 2 * math.pi),
+    );
+
+    final glowPaint = Paint()
+      ..shader = gradient.createShader(rect)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = borderWidth + 6
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 10);
+
+    final sharpPaint = Paint()
+      ..shader = gradient.createShader(rect)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = borderWidth;
+
+    canvas.drawCircle(center, radius, glowPaint);
+    canvas.drawCircle(center, radius, sharpPaint);
   }
 
-  Color _getBorderColor() {
-    switch (gameState) {
-      case GameState.waiting:
-        return Colors.blue;
-      case GameState.countdown:
-        return Colors.orange;
-      case GameState.greenLight:
-        return Colors.green;
-      case GameState.redLight:
-        return Colors.red;
-      case GameState.victory:
-        return Colors.green;
-      case GameState.gameOver:
-        return Colors.purple;
-    }
-  }
-
-  Color _getLightColor() {
-    switch (gameState) {
-      case GameState.waiting:
-        return Colors.blue.shade300;
-      case GameState.countdown:
-        return Colors.orange.shade300;
-      case GameState.greenLight:
-        return Colors.green.shade400;
-      case GameState.redLight:
-        return Colors.red.shade400;
-      case GameState.victory:
-        return Colors.green.shade400;
-      case GameState.gameOver:
-        return Colors.purple.shade300;
-    }
-  }
-
-  Widget _buildLightContent() {
-    switch (gameState) {
-      case GameState.waiting:
-        return const Icon(
-          Icons.people,
-          color: Colors.white,
-          size: 40,
-        );
-      case GameState.countdown:
-        return const Icon(
-          Icons.timer,
-          color: Colors.white,
-          size: 40,
-        );
-      case GameState.greenLight:
-        return const Icon(
-          Icons.play_arrow,
-          color: Colors.white,
-          size: 50,
-        );
-      case GameState.redLight:
-        return const Icon(
-          Icons.stop,
-          color: Colors.white,
-          size: 40,
-        );
-      case GameState.victory:
-        return const Icon(
-          Icons.emoji_events,
-          color: Colors.yellow,
-          size: 50,
-        );
-      case GameState.gameOver:
-        return const Icon(
-          Icons.flag,
-          color: Colors.white,
-          size: 40,
-        );
-    }
-  }
-
-  String _getStateText() {
-    switch (gameState) {
-      case GameState.waiting:
-        return 'Get in Position!';
-      case GameState.countdown:
-        return 'Game Starting...';
-      case GameState.greenLight:
-        return 'GREEN LIGHT\nGO!';
-      case GameState.redLight:
-        return 'RED LIGHT\nFREEZE!';
-      case GameState.victory:
-        return 'VICTORY!';
-      case GameState.gameOver:
-        return 'Game Over!';
-    }
+  @override
+  bool shouldRepaint(covariant _SirenCirclePainter oldDelegate) {
+    return oldDelegate.animationValue != animationValue ||
+        oldDelegate.baseColor != baseColor;
   }
 }

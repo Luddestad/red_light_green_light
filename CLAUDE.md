@@ -65,7 +65,6 @@ lib/
 │   │   ├── audio_service.dart          # TTS and sound effects
 │   │   ├── camera_service.dart         # Camera initialization & streaming
 │   │   ├── pose_detection_service.dart # ML Kit pose detection
-│   │   ├── detection_service.dart      # Orchestrates pose detection
 │   │   └── permission_service.dart     # Camera permissions
 │   └── constants/
 │       ├── game_constants.dart         # Game timing & rules
@@ -76,31 +75,25 @@ lib/
 │   └── game/
 │       ├── models/
 │       │   ├── game_state.dart         # Game state machine & session
-│       │   ├── player_tracker.dart     # Individual player tracking
 │       │   ├── pose_landmark.dart      # Pose data structures
-│       │   ├── movement_detection.dart # Movement algorithms
 │       │   └── difficulty_settings.dart # Difficulty configurations
 │       ├── screens/
 │       │   ├── start_screen.dart       # Main menu
-│       │   └── game_screen.dart        # Main game loop
+│       │   └── game_screen.dart        # Main game loop (includes player tracking)
 │       └── widgets/
-│           ├── light_indicator_widget.dart        # Red/green light display
-│           ├── enhanced_player_status_widget.dart # Player status UI
-│           ├── movement_overlay_widget.dart       # Visual movement feedback
-│           ├── pose_skeleton_widget.dart          # Skeleton visualization
-│           └── game_over_screen.dart              # End game screen
-└── shared/
-    └── providers/
-        └── app_state_provider.dart     # Global app state
+│           ├── light_indicator_widget.dart   # Red/green light display
+│           ├── movement_overlay_widget.dart  # Pose skeleton visualization
+│           └── game_over_screen.dart         # End game screen
+└── main.dart                  # App entry point
 ```
 
-### Recent Changes (January 2025)
+### Recent Changes (February 2026)
 
-- **Converted to single-player mode**: Removed all multi-player code and simplified architecture
-- **Removed unused dependencies**: tflite_flutter and sqflite removed from pubspec.yaml
+- **Workshop cleanup**: Removed unused files (detection_service.dart, movement_detection.dart, app_state_provider.dart)
+- **Removed unused dependencies**: go_router, shared_preferences, path_provider, provider
+- **Simplified for workshop**: Inline player tracking in game_screen.dart, no separate PlayerTracker class
+- **Fixed audio constants**: Corrected file paths to match actual .wav files
 - **Optimized frame processing**: Adaptive frame skipping (2x during red light, 4x during green)
-- **Simplified GameScreen**: No more playerCount parameter, single PlayerTracker instance
-- **Updated GameState model**: Simplified for single player only
 
 ### Key Architectural Patterns
 
@@ -116,21 +109,19 @@ The game uses a state machine defined in `GameState` enum:
 - Dynamic timing based on difficulty
 
 #### 2. Player Tracking System
-`PlayerTracker` (lib/features/game/models/player_tracker.dart) handles single player detection:
-- **Pose tracking**: Maintains recent pose history for stability
+Player tracking is implemented inline in `game_screen.dart` (lines 54-60):
+- **Pose tracking**: `_currentPose` and `_baselinePose` variables
 - **Baseline system**: Captures "freeze" pose when red light starts
-- **Movement detection**: Compares current pose to baseline using pixel-based thresholds (80 pixels)
-- **Stability tracking**: Requires 4 consecutive stable frames before player is "ready"
-
-Single player mode uses a single `PlayerTracker` instance (no arrays or lists).
+- **Movement detection**: `_checkSimpleMovement()` compares current pose to baseline using pixel-based thresholds (80 pixels)
+- **Stability tracking**: `_stabilityFrames` counter requires 4 consecutive stable frames before player is "ready"
 
 #### 3. Detection Pipeline
 Located in `game_screen.dart:_processImage()`:
 1. Camera provides image stream (adaptive: every 2nd/4th frame based on game state)
 2. `PoseDetectionService` runs ML Kit pose detection
-3. `_updatePlayerTracker()` assigns pose to single player tracker
+3. `_updatePoseDetection()` updates the current pose and stability tracking
 4. During red light: `_checkForMovementViolations()` checks for movement
-5. `PlayerTracker.checkForMovement()` compares current vs baseline poses
+5. `_checkSimpleMovement()` compares current vs baseline poses
 
 **Adaptive Frame Skipping**:
 - Initialization: Every 2nd frame (faster detection)
@@ -138,11 +129,11 @@ Located in `game_screen.dart:_processImage()`:
 - Green/Waiting: Every 4th frame (battery saving)
 
 #### 4. Movement Detection Algorithm
-Simple pixel-based detection (lib/features/game/models/player_tracker.dart:181-246):
+Simple pixel-based detection in `game_screen.dart:_checkSimpleMovement()` (lines 346-380):
 - Monitors 5 key landmarks: nose, shoulders, elbows
 - Calculates pixel distance between current and baseline positions
 - Threshold: 80 pixels of movement
-- Requires movement for 3 consecutive frames to eliminate false positives
+- Immediate elimination on detection (simplified for workshop)
 
 #### 5. Audio System
 `AudioService` (lib/core/services/audio_service.dart) provides:
@@ -163,10 +154,9 @@ Located in `game_screen.dart:_startGameLoop()`:
 ### Single Player Architecture
 
 Fully converted to single-player mode:
-- Single `PlayerTracker` instance (no arrays)
-- `GameScreen` has no `playerCount` parameter
+- Pose tracking variables inline in `GameScreen` (`_currentPose`, `_baselinePose`, `_stabilityFrames`)
 - `GameState.isGameOver` returns true only when single player is eliminated
-- `GameState.initializePositions()` always creates exactly 1 player
+- `GameState.initializePositions()` creates single player
 - All UI displays single player status
 - Face detection removed (not needed for single player)
 
@@ -179,10 +169,9 @@ Edit `lib/features/game/models/difficulty_settings.dart`:
 - Update `StartScreen` to include new difficulty in UI
 
 ### Modifying Movement Sensitivity
-Edit `lib/features/game/models/player_tracker.dart:222`:
-- Adjust `movementThreshold` constant (currently 80.0 pixels)
+Edit `lib/features/game/screens/game_screen.dart:_checkSimpleMovement()`:
+- Adjust `threshold` constant (currently 80.0 pixels)
 - Lower = more sensitive, higher = more forgiving
-- Different thresholds per landmark are possible (see commented multi-threshold code)
 
 ### Adding New Sound Effects
 1. Add audio file to `assets/sounds/`
@@ -191,15 +180,10 @@ Edit `lib/features/game/models/player_tracker.dart:222`:
 4. Call from game screen at appropriate time
 
 ### Debugging Detection Issues
-Enable logging in `PlayerTracker`:
-- Stability frames: Line 157, 163, 171, 173, 177
-- Movement detection: Line 225, 229, 232, 242
-- Baseline setting: Line 253
-
 Check `game_screen.dart` detection logs:
-- System stability: Line 656
-- Movement violations: Line 578, 599, 609
-- Player assignment: Line 444, 453
+- Pose detection status: `_updatePoseDetection()` logs landmark count and stability
+- Movement violations: `_checkForMovementViolations()` and `_checkSimpleMovement()` log detected movement
+- Baseline setting: `_switchToRedLight()` logs baseline capture
 
 ## Platform-Specific Notes
 
@@ -214,11 +198,8 @@ Check `game_screen.dart` detection logs:
 
 ### Assets
 Required asset directories:
-- `assets/models/` - ML models (if using custom models)
-- `assets/sounds/` - Audio files (.wav, .mp3)
-- `assets/images/icons/` - Game icons
-- `assets/images/backgrounds/` - Background images
-- `assets/icon/` - App launcher icon
+- `assets/sounds/` - Audio files (.wav): red_light, eliminated, game_over, victory, lobby
+- `assets/icon/` - App launcher icon (traffic_light_icon.png)
 
 ## Important Considerations
 

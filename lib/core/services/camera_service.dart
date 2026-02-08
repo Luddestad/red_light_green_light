@@ -14,7 +14,7 @@ class CameraService {
   List<CameraDescription> _cameras = [];
   bool _isInitialized = false;
   StreamController<CameraImage>? _imageStreamController;
-  
+
   // Getters
   CameraController? get controller => _controller;
   bool get isInitialized => _isInitialized;
@@ -24,14 +24,7 @@ class CameraService {
   /// Initialize camera service
   Future<bool> initialize() async {
     try {
-      // Check camera permission first
-      final permissionService = PermissionService();
-      if (!await permissionService.isCameraPermissionGranted()) {
-        final granted = await permissionService.requestCameraPermission();
-        if (!granted) {
-          throw Exception(AppConstants.cameraPermissionDenied);
-        }
-      }
+      checkCameraPerimissions();
 
       // Get available cameras
       _cameras = await availableCameras();
@@ -42,11 +35,12 @@ class CameraService {
       // Use front-facing camera (selfie camera)
       final camera = _cameras.firstWhere(
         (camera) => camera.lensDirection == CameraLensDirection.front,
-        orElse: () => _cameras.first, // Fallback to first camera if no front camera
+        orElse: () =>
+            _cameras.first, // Fallback to first camera if no front camera
       );
-      
+
       print('Selected camera: ${camera.name}, lens: ${camera.lensDirection}');
-      
+
       // Initialize camera controller - let ML Kit handle the format
       _controller = CameraController(
         camera,
@@ -56,10 +50,9 @@ class CameraService {
       );
 
       await _controller!.initialize();
-      
-      // Set up image stream
+
       _imageStreamController = StreamController<CameraImage>.broadcast();
-      
+
       _isInitialized = true;
       return true;
     } catch (e) {
@@ -69,7 +62,6 @@ class CameraService {
     }
   }
 
-  /// Start camera preview
   Future<bool> startPreview() async {
     if (!_isInitialized || _controller == null) {
       return false;
@@ -77,7 +69,9 @@ class CameraService {
 
     try {
       await _controller!.startImageStream((CameraImage image) {
-        print('Camera image received: ${image.width}x${image.height}, format: ${image.format.raw}');
+        print(
+          'Camera image received: ${image.width}x${image.height}, format: ${image.format.raw}',
+        );
         _imageStreamController?.add(image);
       });
       return true;
@@ -98,18 +92,16 @@ class CameraService {
     }
   }
 
-  /// Take a picture
-  Future<XFile?> takePicture() async {
-    if (!_isInitialized || _controller == null) {
-      return null;
+  Future<bool> checkCameraPerimissions() async {
+    final permissionService = PermissionService();
+    if (!await permissionService.isCameraPermissionGranted()) {
+      final granted = await permissionService.requestCameraPermission();
+      if (!granted) {
+        throw Exception(AppConstants.cameraPermissionDenied);
+      }
+      return granted;
     }
-
-    try {
-      return await _controller!.takePicture();
-    } catch (e) {
-      print('Failed to take picture: $e');
-      return null;
-    }
+    return false;
   }
 
   /// Get camera preview widget
@@ -133,7 +125,6 @@ class CameraService {
     }
   }
 
-  /// Check if camera is available
   Future<bool> isCameraAvailable() async {
     try {
       final cameras = await availableCameras();
@@ -144,7 +135,6 @@ class CameraService {
     }
   }
 
-  /// Get camera info
   Map<String, dynamic> getCameraInfo() {
     if (!_isInitialized || _controller == null) {
       return {};
@@ -158,10 +148,9 @@ class CameraService {
     };
   }
 
-  /// Set camera flash mode
   Future<void> setFlashMode(FlashMode mode) async {
     if (!_isInitialized || _controller == null) return;
-    
+
     try {
       await _controller!.setFlashMode(mode);
     } catch (e) {
@@ -172,7 +161,7 @@ class CameraService {
   /// Set camera focus mode
   Future<void> setFocusMode(FocusMode mode) async {
     if (!_isInitialized || _controller == null) return;
-    
+
     try {
       await _controller!.setFocusMode(mode);
     } catch (e) {

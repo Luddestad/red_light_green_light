@@ -6,9 +6,9 @@ import 'package:camera/camera.dart';
 import '../constants/detection_constants.dart';
 import '../../features/game/models/pose_landmark.dart';
 
-/// Service for pose detection and tracking
 class PoseDetectionService {
-  static final PoseDetectionService _instance = PoseDetectionService._internal();
+  static final PoseDetectionService _instance =
+      PoseDetectionService._internal();
   factory PoseDetectionService() => _instance;
   PoseDetectionService._internal();
 
@@ -16,13 +16,10 @@ class PoseDetectionService {
   bool _isInitialized = false;
   List<PoseData> _recentPoses = [];
   CameraDescription? _currentCamera;
-
-  // Getters
   bool get isInitialized => _isInitialized;
   List<PoseData> get recentPoses => List.unmodifiable(_recentPoses);
   int get poseCount => _recentPoses.length;
 
-  /// Initialize the pose detection service
   Future<bool> initialize({CameraDescription? camera}) async {
     try {
       _poseDetector = PoseDetector(
@@ -31,7 +28,7 @@ class PoseDetectionService {
           model: PoseDetectionModel.accurate,
         ),
       );
-      
+
       _currentCamera = camera;
       _isInitialized = true;
       return true;
@@ -42,7 +39,6 @@ class PoseDetectionService {
     }
   }
 
-  /// Detect poses in camera image
   Future<List<Pose>> detectPoses(CameraImage cameraImage) async {
     if (!_isInitialized || _poseDetector == null) {
       return [];
@@ -51,10 +47,10 @@ class PoseDetectionService {
     try {
       final inputImage = _cameraImageToInputImage(cameraImage);
       final poses = await _poseDetector!.processImage(inputImage);
-      
+
       // Store lightweight recent pose list for stats
       _recentPoses = poses.map((p) => PoseData.fromPose(p)).toList();
-      
+
       return poses;
     } catch (e) {
       print('Pose detection error: $e');
@@ -63,7 +59,10 @@ class PoseDetectionService {
   }
 
   /// Detect movement between current and reference poses
-  bool detectMovement(List<PoseData> currentPoses, List<PoseData> referencePoses) {
+  bool detectMovement(
+    List<PoseData> currentPoses,
+    List<PoseData> referencePoses,
+  ) {
     if (currentPoses.isEmpty || referencePoses.isEmpty) {
       return false;
     }
@@ -71,13 +70,16 @@ class PoseDetectionService {
     // Check if any current pose has moved significantly from reference poses
     return currentPoses.any((currentPose) {
       final closestReference = _findClosestPose(currentPose, referencePoses);
-      return closestReference != null && 
-             _hasSignificantMovement(currentPose, closestReference);
+      return closestReference != null &&
+          _hasSignificantMovement(currentPose, closestReference);
     });
   }
 
   /// Find the closest reference pose to a current pose
-  PoseData? _findClosestPose(PoseData currentPose, List<PoseData> referencePoses) {
+  PoseData? _findClosestPose(
+    PoseData currentPose,
+    List<PoseData> referencePoses,
+  ) {
     if (referencePoses.isEmpty) return null;
 
     return referencePoses.reduce((closest, reference) {
@@ -102,14 +104,20 @@ class PoseDetectionService {
       }
     }
 
-    return validLandmarks > 0 ? totalDistance / validLandmarks : double.infinity;
+    return validLandmarks > 0
+        ? totalDistance / validLandmarks
+        : double.infinity;
   }
 
   /// Check if there's significant movement between two poses
   bool _hasSignificantMovement(PoseData currentPose, PoseData referencePose) {
     // Check individual landmark movement
     for (final landmarkType in DetectionConstants.monitoredLandmarks) {
-      if (_landmarkMovedSignificantly(currentPose, referencePose, landmarkType)) {
+      if (_landmarkMovedSignificantly(
+        currentPose,
+        referencePose,
+        landmarkType,
+      )) {
         return true;
       }
     }
@@ -133,12 +141,15 @@ class PoseDetectionService {
 
     final distance = currentLandmark.distanceTo(referenceLandmark);
     final threshold = _getMovementThreshold(landmarkType);
-    
+
     return distance > threshold;
   }
 
   /// Check for significant forward movement
-  bool _hasSignificantForwardMovement(PoseData currentPose, PoseData referencePose) {
+  bool _hasSignificantForwardMovement(
+    PoseData currentPose,
+    PoseData referencePose,
+  ) {
     final currentHipCenter = _getHipCenter(currentPose);
     final referenceHipCenter = _getHipCenter(referencePose);
 
@@ -153,14 +164,14 @@ class PoseDetectionService {
   /// Get movement threshold for specific landmark type
   double _getMovementThreshold(PoseLandmarkType landmarkType) {
     return switch (landmarkType) {
-      PoseLandmarkType.leftShoulder || 
-      PoseLandmarkType.rightShoulder => DetectionConstants.shoulderMovementThreshold,
-      
-      PoseLandmarkType.leftHip || 
+      PoseLandmarkType.leftShoulder || PoseLandmarkType.rightShoulder =>
+        DetectionConstants.shoulderMovementThreshold,
+
+      PoseLandmarkType.leftHip ||
       PoseLandmarkType.rightHip => DetectionConstants.hipMovementThreshold,
-      
+
       PoseLandmarkType.nose => DetectionConstants.noseMovementThreshold,
-      
+
       _ => 0.1, // Default movement threshold
     };
   }
@@ -184,9 +195,11 @@ class PoseDetectionService {
   /// Convert CameraImage to InputImage
   InputImage _cameraImageToInputImage(CameraImage cameraImage) {
     final format = InputImageFormatValue.fromRawValue(cameraImage.format.raw);
-    
+
     if (format == null) {
-      throw Exception('Unsupported camera image format: ${cameraImage.format.raw}');
+      throw Exception(
+        'Unsupported camera image format: ${cameraImage.format.raw}',
+      );
     }
 
     final rotation = _getImageRotation();
@@ -220,17 +233,15 @@ class PoseDetectionService {
 
     final sensorOrientation = _currentCamera!.sensorOrientation;
     final rotationCompensation = Platform.isIOS ? 0 : sensorOrientation;
-    
-    return InputImageRotationValue.fromRawValue(rotationCompensation) 
-        ?? InputImageRotation.rotation0deg;
+
+    return InputImageRotationValue.fromRawValue(rotationCompensation) ??
+        InputImageRotation.rotation0deg;
   }
 
-  /// Clear recent poses
   void clearRecentPoses() {
     _recentPoses.clear();
   }
 
-  /// Dispose resources
   Future<void> dispose() async {
     try {
       await _poseDetector?.close();
