@@ -16,8 +16,7 @@ class GameOverScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final winner = gameSession.winner;
-    final bool playerWon = winner != null;
+    final bool playerWon = gameSession.currentState == GameState.victory;
 
     return Container(
       decoration: BoxDecoration(
@@ -95,20 +94,6 @@ class GameOverScreen extends StatelessWidget {
 
             const SizedBox(height: 40),
 
-            // Game Stats
-            Container(
-              padding: const EdgeInsets.all(20),
-              margin: const EdgeInsets.symmetric(horizontal: 40),
-              decoration: BoxDecoration(
-                color: Colors.black26,
-                borderRadius: BorderRadius.circular(15),
-                border: Border.all(color: Colors.white24, width: 1),
-              ),
-            ),
-
-            const SizedBox(height: 40),
-
-            // Action Buttons
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [

@@ -12,7 +12,6 @@ class GameConstants {
   static const double confidenceThreshold = 0.8; // 80% confidence required
 
   // Game States
-  static const int maxRounds = 50; // Maximum rounds before game ends
   static const int eliminationDelay =
       1000; // milliseconds before elimination announcement
 
@@ -31,14 +30,8 @@ class GameConstants {
   static const String winnerMessage = 'Congratulations! You are the winner!';
   static const String welcomeMessage =
       'Welcome to Red Light Green Light! Get in your position. Game will start in 20 seconds.';
-  static const String fiveSecondsLeft =
-      '5 seconds until game starts! Get ready!';
   static const String waitingForStableConnection =
       'Waiting for stable detection. Stand in front of the camera and stay very still for a few seconds.';
   static const String playerDetectedLobby =
       'Player detected! Great, I can see you clearly.';
-  static const String playerStable =
-      'Perfect! You are stable and ready to play. Stand still and wait for the countdown!';
-  static const String reducedCountdown =
-      'Great! Since you are ready, the countdown has been reduced to 10 seconds!';
 }
