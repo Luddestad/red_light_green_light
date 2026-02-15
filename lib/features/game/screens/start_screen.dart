@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'game_screen.dart';
+import '../widgets/animated_traffic_light_logo.dart';
 import '../controllers/game_controller.dart';
 import '../models/difficulty_settings.dart';
 import '../../../core/services/camera_service.dart';
@@ -42,37 +43,16 @@ class _StartScreenState extends State<StartScreen> {
       backgroundColor: Colors.black,
       body: Container(
         height: double.infinity,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Colors.red.shade900, Colors.black, Colors.green.shade900],
-          ),
-        ),
+        width: double.infinity,
+        decoration: BoxDecoration(),
         child: SafeArea(
           child: SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.all(20),
               child: Column(
                 children: [
-                  // Game title
-                  const Text(
-                    '🚦 RED LIGHT\nGREEN LIGHT 🚦',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 36,
-                      fontWeight: FontWeight.bold,
-                      height: 1.2,
-                      shadows: [
-                        Shadow(
-                          color: Colors.black,
-                          blurRadius: 10,
-                          offset: Offset(2, 2),
-                        ),
-                      ],
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
+                  // Logo
+                  const AnimatedTrafficLightLogo(height: 120),
 
                   const SizedBox(height: 30),
 
@@ -166,22 +146,9 @@ class _StartScreenState extends State<StartScreen> {
 
                   const SizedBox(height: 100),
 
-                  // Info text
-                  Text(
-                    'Make sure you are visible in the camera before starting',
-                    style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.7),
-                      fontSize: 14,
-                      fontStyle: FontStyle.italic,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-
-                  const SizedBox(height: 20),
-
                   // Start game button
                   SizedBox(
-                    width: double.infinity,
+                    width: 375,
                     height: 60,
                     child: ElevatedButton(
                       onPressed: _startGame,
