@@ -6,7 +6,7 @@ import 'package:red_light_green_light/core/constants/game_constants.dart';
 import 'package:red_light_green_light/core/services/audio_service.dart';
 import 'package:red_light_green_light/core/services/camera_service.dart';
 import 'package:red_light_green_light/core/services/pose_detection_service.dart';
-import 'package:red_light_green_light/features/game/models/difficulty_settings.dart';
+import 'package:red_light_green_light/features/game/models/detection_settings.dart';
 import 'package:red_light_green_light/features/game/models/game_state.dart';
 import 'dart:math' as math;
 
@@ -14,7 +14,7 @@ class GameController extends ChangeNotifier {
   final AudioService audioService;
   final CameraService cameraService;
   final PoseDetectionService poseDetectionService;
-  final DifficultySettings difficulty;
+  final DetectionSettings settings;
 
   final void Function() onGoHome;
 
@@ -22,7 +22,7 @@ class GameController extends ChangeNotifier {
     required this.audioService,
     required this.cameraService,
     required this.poseDetectionService,
-    required this.difficulty,
+    required this.settings,
     required this.onGoHome,
   });
 
@@ -44,8 +44,14 @@ class GameController extends ChangeNotifier {
   bool _hasReducedCountdownForStable = false;
   Future<void> initializeGame() async {
     gameSession = GameSession(
-      greenLightDuration: difficulty.getGreenLightDuration(),
-      redLightDuration: difficulty.getRedLightDuration(),
+      greenLightDuration: settings.getRandomDurationInRange(
+        settings.greenLightDurationSecondsMin,
+        settings.greenLightDurationSecondsMax,
+      ),
+      redLightDuration: settings.getRandomDurationInRange(
+        settings.redLightDurationSecondsMin,
+        settings.redLightDurationSecondsMax,
+      ),
     );
 
     // Services are already initialized from StartScreen
@@ -147,7 +153,10 @@ class GameController extends ChangeNotifier {
   }
 
   Future<void> switchToRedLight() async {
-    gameSession.redLightDuration = difficulty.getRedLightDuration();
+    gameSession.redLightDuration = settings.getRandomDurationInRange(
+      settings.redLightDurationSecondsMin,
+      settings.redLightDurationSecondsMax,
+    );
     gameSession.advanceState(); // Move to red light
     notifyListeners(); // Visual updates immediately
 
@@ -170,7 +179,10 @@ class GameController extends ChangeNotifier {
       gameSession.advanceState(); // Move to game over
       notifyListeners();
     } else {
-      gameSession.greenLightDuration = difficulty.getGreenLightDuration();
+      gameSession.greenLightDuration = settings.getRandomDurationInRange(
+        settings.greenLightDurationSecondsMin,
+        settings.greenLightDurationSecondsMax,
+      );
       gameSession.advanceState(); // Move to green light
       notifyListeners(); // Visual updates immediately
       await audioService.speak(GameConstants.greenLightMessage);
@@ -202,10 +214,16 @@ class GameController extends ChangeNotifier {
 
   /// Restart the game
   void restartGame() {
-    // Reset game session with difficulty-based durations
+    // Reset game session with current settings
     gameSession = GameSession(
-      greenLightDuration: difficulty.getGreenLightDuration(),
-      redLightDuration: difficulty.getRedLightDuration(),
+      greenLightDuration: settings.getRandomDurationInRange(
+        settings.greenLightDurationSecondsMin,
+        settings.greenLightDurationSecondsMax,
+      ),
+      redLightDuration: settings.getRandomDurationInRange(
+        settings.redLightDurationSecondsMin,
+        settings.redLightDurationSecondsMax,
+      ),
     );
 
     // Reset detection state
@@ -274,7 +292,7 @@ class GameController extends ChangeNotifier {
   }
 
   bool checkSimpleMovement(Pose current, Pose baseline) {
-    const threshold = 80.0; // pixels
+    final threshold = settings.movementThresholdPx;
 
     final keyLandmarks = [
       PoseLandmarkType.nose,
@@ -368,9 +386,9 @@ class GameController extends ChangeNotifier {
       stabilityFrames = math.max(0, stabilityFrames - 1);
     }
 
-    isPlayerStable = stabilityFrames >= 4;
+    isPlayerStable = stabilityFrames >= settings.stabilityFramesRequired;
     print(
-      '👤 Pose detected: $validLandmarks landmarks, stable=$isPlayerStable ($stabilityFrames/4)',
+      '👤 Pose detected: $validLandmarks landmarks, stable=$isPlayerStable ($stabilityFrames/${settings.stabilityFramesRequired})',
     );
 
     // Handle detection announcement
