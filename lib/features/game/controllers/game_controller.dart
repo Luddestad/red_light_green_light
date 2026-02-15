@@ -323,7 +323,9 @@ class GameController extends ChangeNotifier {
     }
 
     // Auto-reduce countdown when player is stable (silent, no TTS)
-    if (isPlayerStable && countdownSeconds > 10 && !_hasReducedCountdownForStable) {
+    if (isPlayerStable &&
+        countdownSeconds > 10 &&
+        !_hasReducedCountdownForStable) {
       _hasReducedCountdownForStable = true;
       countdownSeconds = 10;
       notifyListeners();
