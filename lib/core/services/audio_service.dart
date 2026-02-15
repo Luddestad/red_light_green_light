@@ -22,9 +22,7 @@ class AudioService {
       await _tts.setVolume(1.0);
       await _tts.setPitch(1.2); // Slightly higher pitch for female voice
       await _tts.awaitSpeakCompletion(true);
-      //Set voice here?
 
-      // Set up TTS callbacks
       _tts.setStartHandler(() {
         _isSpeaking = true;
       });

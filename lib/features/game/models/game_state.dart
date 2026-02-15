@@ -1,7 +1,7 @@
 /// Game state enumeration and management
 enum GameState {
   waiting, // Waiting for players to get in position
-  countdown, // 30-second countdown before game starts
+  countdown, //countdown before game starts
   greenLight, // Players can move
   redLight, // Players must freeze
   victory, // Player reached the phone and won
@@ -20,10 +20,7 @@ class PlayerPosition {
     this.eliminationTime,
   });
 
-  PlayerPosition copyWith({
-    bool? isEliminated,
-    DateTime? eliminationTime,
-  }) {
+  PlayerPosition copyWith({bool? isEliminated, DateTime? eliminationTime}) {
     return PlayerPosition(
       baselinePose: baselinePose,
       isEliminated: isEliminated ?? this.isEliminated,
