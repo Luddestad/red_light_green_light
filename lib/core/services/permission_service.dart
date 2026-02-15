@@ -1,5 +1,5 @@
 import 'package:permission_handler/permission_handler.dart';
-import '../constants/app_constants.dart';
+import '../constants/game_constants.dart';
 
 class PermissionService {
   static final PermissionService _instance = PermissionService._internal();
@@ -66,9 +66,9 @@ class PermissionService {
     if (!permissions['camera']! && !permissions['microphone']!) {
       return 'Camera and microphone permissions are required';
     } else if (!permissions['camera']!) {
-      return AppConstants.cameraPermissionDenied;
+      return GameConstants.cameraPermissionDenied;
     } else if (!permissions['microphone']!) {
-      return AppConstants.microphonePermissionDenied;
+      return GameConstants.microphonePermissionDenied;
     }
     return 'All permissions granted';
   }

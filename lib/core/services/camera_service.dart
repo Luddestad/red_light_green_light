@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:camera/camera.dart';
 import 'package:flutter/widgets.dart';
-import '../constants/app_constants.dart';
+import '../constants/game_constants.dart';
 import 'permission_service.dart';
 
 /// Service for managing camera functionality
@@ -97,7 +97,7 @@ class CameraService {
     if (!await permissionService.isCameraPermissionGranted()) {
       final granted = await permissionService.requestCameraPermission();
       if (!granted) {
-        throw Exception(AppConstants.cameraPermissionDenied);
+        throw Exception(GameConstants.cameraPermissionDenied);
       }
       return granted;
     }

@@ -18,16 +18,6 @@ class DetectionConstants {
     PoseLandmarkType.nose,
   ];
 
-  // Detection Performance
-  static const int detectionFrameRate = 30;
-  static const int poseDetectionInterval = 100; // milliseconds
-  // faceDetectionInterval removed
-
-  // Camera Settings
-  static const double cameraAspectRatio = 16 / 9;
-  static const int preferredCameraResolution = 720; // 720p
-  static const bool enableCameraStabilization = true;
-
   // Movement Detection Thresholds
   static const double shoulderMovementThreshold = 0.08; // 8cm
   static const double hipMovementThreshold = 0.12; // 12cm
@@ -35,13 +25,4 @@ class DetectionConstants {
 
   // Forward Movement Detection
   static const double forwardMovementThreshold = 0.15; // 15cm
-  static const double forwardMovementConfidence = 0.75;
-
-  // Pose Quality
-  static const double minimumPoseConfidence = 0.5;
-  static const int maxPosesPerFrame = 1; // Single player mode
-
-  // Error Handling
-  static const int maxDetectionFailures = 5;
-  static const Duration detectionTimeout = Duration(seconds: 10);
 }

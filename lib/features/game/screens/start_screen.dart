@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'game_screen.dart';
 import '../widgets/animated_traffic_light_logo.dart';
 import '../controllers/game_controller.dart';
-import '../models/difficulty_settings.dart';
+import '../models/detection_settings.dart';
 import '../../../core/services/camera_service.dart';
 import '../../../core/services/pose_detection_service.dart';
 import '../../../core/services/audio_service.dart';
@@ -20,9 +21,6 @@ class _StartScreenState extends State<StartScreen> {
   final CameraService _cameraService = CameraService();
   final PoseDetectionService _poseService = PoseDetectionService();
   final AudioService _audioService = AudioService();
-
-  // Single-player only
-  DifficultySettings _selectedDifficulty = DifficultySettings.defaultSettings;
 
   @override
   void initState() {
@@ -66,7 +64,7 @@ class _StartScreenState extends State<StartScreen> {
                         color: Colors.white.withValues(alpha: 0.3),
                       ),
                     ),
-                    child: const Column(
+                    child: Column(
                       children: [
                         Text(
                           'GAME RULES',
@@ -77,68 +75,34 @@ class _StartScreenState extends State<StartScreen> {
                           ),
                         ),
                         SizedBox(height: 15),
-                        Text(
-                          '🟢    GREEN LIGHT: Move towards the camera\n'
-                          '🔴    RED LIGHT: Freeze completely!\n'
-                          '❌    Any movement during red light = ELIMINATION\n'
-                          '🏆    Reach the phone to win!',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 14,
-                            height: 3,
+                        _RuleRow(
+                          icon: SvgPicture.asset(
+                            'assets/images/icons/rules_green_light.svg',
+                            height: 24,
+                            width: 24,
                           ),
-                          textAlign: TextAlign.start,
+                          text: 'GREEN LIGHT: Move towards the camera',
                         ),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 30),
-
-                  // Difficulty selection
-                  Container(
-                    padding: const EdgeInsets.all(18),
-                    width: 375,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(15),
-                      border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.3),
-                      ),
-                    ),
-                    child: Column(
-                      children: [
-                        const Text(
-                          'SELECT DIFFICULTY',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
+                        SizedBox(height: 20),
+                        _RuleRow(
+                          icon: SvgPicture.asset(
+                            'assets/images/icons/rules_red_light.svg',
+                            height: 24,
+                            width: 24,
                           ),
+                          text: 'RED LIGHT: Freeze completely!',
                         ),
-                        const SizedBox(height: 12),
+                        SizedBox(height: 20),
 
-                        // Difficulty buttons
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: DifficultySettings.all
-                              .map(
-                                (difficulty) =>
-                                    _buildDifficultyButton(difficulty),
-                              )
-                              .toList(),
+                        _RuleRow(
+                          icon: Icon(Icons.warning, color: Colors.red),
+                          text:
+                              'ELIMINATION: Any movement during red light = ELIMINATION',
                         ),
-
-                        const SizedBox(height: 12),
-                        Text(
-                          _selectedDifficulty.description,
-                          style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.8),
-                            fontSize: 14,
-                            fontStyle: FontStyle.italic,
-                          ),
-                          textAlign: TextAlign.center,
+                        SizedBox(height: 20),
+                        _RuleRow(
+                          icon: Icon(Icons.check, color: Colors.green),
+                          text: 'VICTORY: Reach the phone to win!',
                         ),
                       ],
                     ),
@@ -189,56 +153,20 @@ class _StartScreenState extends State<StartScreen> {
     ); // Scaffold
   }
 
-  // Player count selection removed for single-player mode
-
-  Widget _buildDifficultyButton(DifficultySettings difficulty) {
-    final isSelected = _selectedDifficulty.level == difficulty.level;
-
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _selectedDifficulty = difficulty;
-        });
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? _getDifficultyColor(difficulty.level)
-              : Colors.transparent,
-          border: Border.all(
-            color: isSelected
-                ? _getDifficultyColor(difficulty.level)
-                : Colors.white.withValues(alpha: 0.5),
-            width: 2,
-          ),
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Text(
-          difficulty.displayName,
-          style: TextStyle(
-            color: isSelected
-                ? Colors.white
-                : Colors.white.withValues(alpha: 0.8),
-            fontSize: 12,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+  static Widget _RuleRow({required Widget icon, required String text}) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        SizedBox(height: 64, width: 64, child: icon),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            text,
+            style: const TextStyle(color: Colors.white, fontSize: 14),
           ),
         ),
-      ),
+      ],
     );
-  }
-
-  Color _getDifficultyColor(GameDifficulty level) {
-    switch (level) {
-      case GameDifficulty.easy:
-        return Colors.green;
-      case GameDifficulty.medium:
-        return Colors.orange;
-      case GameDifficulty.hard:
-        return Colors.red;
-      case GameDifficulty.extreme:
-        return Colors.purple;
-    }
   }
 
   Future<void> _startGame() async {
@@ -246,7 +174,7 @@ class _StartScreenState extends State<StartScreen> {
       audioService: _audioService,
       cameraService: _cameraService,
       poseDetectionService: _poseService,
-      difficulty: _selectedDifficulty,
+      settings: DetectionSettings.defaultSettings,
       onGoHome: () => Navigator.of(context).pop(),
     );
 
