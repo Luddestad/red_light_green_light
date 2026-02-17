@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'game_screen.dart';
 import '../widgets/animated_traffic_light_logo.dart';
 import '../controllers/game_controller.dart';
@@ -38,7 +39,7 @@ class _StartScreenState extends State<StartScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: const Color(0xFF1E1E1E),
       body: Container(
         height: double.infinity,
         width: double.infinity,
@@ -68,10 +69,11 @@ class _StartScreenState extends State<StartScreen> {
                       children: [
                         Text(
                           'GAME RULES',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
+                          style: GoogleFonts.getFont('Black Han Sans').copyWith(
+                            color: Colors.red,
+                            fontSize: 28,
                             fontWeight: FontWeight.bold,
+                            letterSpacing: 2,
                           ),
                         ),
                         SizedBox(height: 15),
@@ -81,7 +83,7 @@ class _StartScreenState extends State<StartScreen> {
                             height: 24,
                             width: 24,
                           ),
-                          text: 'GREEN LIGHT: Move towards the camera',
+                          text: 'Move towards the phone.',
                         ),
                         SizedBox(height: 20),
                         _RuleRow(
@@ -90,19 +92,16 @@ class _StartScreenState extends State<StartScreen> {
                             height: 24,
                             width: 24,
                           ),
-                          text: 'RED LIGHT: Freeze completely!',
-                        ),
-                        SizedBox(height: 20),
-
-                        _RuleRow(
-                          icon: Icon(Icons.warning, color: Colors.red),
-                          text:
-                              'ELIMINATION: Any movement during red light = ELIMINATION',
+                          text: 'Stand completely still!',
                         ),
                         SizedBox(height: 20),
                         _RuleRow(
-                          icon: Icon(Icons.check, color: Colors.green),
-                          text: 'VICTORY: Reach the phone to win!',
+                          icon: Icon(
+                            Icons.emoji_events,
+                            color: Colors.yellow,
+                            size: 24,
+                          ),
+                          text: 'Reach the phone and click the button to win!',
                         ),
                       ],
                     ),
@@ -110,7 +109,6 @@ class _StartScreenState extends State<StartScreen> {
 
                   const SizedBox(height: 100),
 
-                  // Start game button
                   SizedBox(
                     width: 375,
                     height: 60,
@@ -162,7 +160,9 @@ class _StartScreenState extends State<StartScreen> {
         Expanded(
           child: Text(
             text,
-            style: const TextStyle(color: Colors.white, fontSize: 14),
+            style: GoogleFonts.getFont(
+              'Black Han Sans',
+            ).copyWith(color: Colors.yellow, fontSize: 12),
           ),
         ),
       ],
