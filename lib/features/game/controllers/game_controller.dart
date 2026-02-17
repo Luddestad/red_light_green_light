@@ -153,6 +153,7 @@ class GameController extends ChangeNotifier {
   }
 
   Future<void> switchToRedLight() async {
+    baselinePose = null;
     gameSession.redLightDuration = settings.getRandomDurationInRange(
       settings.redLightDurationSecondsMin,
       settings.redLightDurationSecondsMax,
@@ -165,6 +166,10 @@ class GameController extends ChangeNotifier {
     } catch (e) {
       // Continue anyway - don't let audio issues block game functionality
     }
+
+    await Future.delayed(
+      Duration(milliseconds: settings.redLightFreezeGraceMs),
+    );
 
     if (isPlayerStable && currentPose != null) {
       baselinePose = currentPose;

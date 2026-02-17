@@ -30,6 +30,11 @@ class DetectionSettings {
   /// a random duration between [redLightDurationSecondsMin] and this.
   final int redLightDurationSecondsMax;
 
+  /// Time in milliseconds after "Red light!" is announced before the baseline
+  /// pose is captured. During this grace period the player can freeze before
+  /// movement detection starts. Suggested range 500–1500.
+  final int redLightFreezeGraceMs;
+
   const DetectionSettings({
     this.movementThresholdPx = 80,
     this.stabilityFramesRequired = 4,
@@ -37,6 +42,7 @@ class DetectionSettings {
     this.greenLightDurationSecondsMax = 6,
     this.redLightDurationSecondsMin = 2,
     this.redLightDurationSecondsMax = 5,
+    this.redLightFreezeGraceMs = 800,
   });
 
   /// Returns a random duration (in seconds) within [minSeconds] and [maxSeconds]
@@ -55,6 +61,7 @@ class DetectionSettings {
     int? greenLightDurationSecondsMax,
     int? redLightDurationSecondsMin,
     int? redLightDurationSecondsMax,
+    int? redLightFreezeGraceMs,
   }) {
     return DetectionSettings(
       movementThresholdPx: movementThresholdPx ?? this.movementThresholdPx,
@@ -68,6 +75,8 @@ class DetectionSettings {
           redLightDurationSecondsMin ?? this.redLightDurationSecondsMin,
       redLightDurationSecondsMax:
           redLightDurationSecondsMax ?? this.redLightDurationSecondsMax,
+      redLightFreezeGraceMs:
+          redLightFreezeGraceMs ?? this.redLightFreezeGraceMs,
     );
   }
 
