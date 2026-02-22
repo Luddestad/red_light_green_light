@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:flutter/material.dart' show Size;
 import 'package:flutter/services.dart';
 import 'package:google_mlkit_pose_detection/google_mlkit_pose_detection.dart';
 import 'package:camera/camera.dart';
@@ -16,9 +17,13 @@ class PoseDetectionService {
   bool _isInitialized = false;
   List<PoseData> _recentPoses = [];
   CameraDescription? _currentCamera;
+  Size? _lastInputImageSize;
+  InputImageRotation? _lastInputImageRotation;
   bool get isInitialized => _isInitialized;
   List<PoseData> get recentPoses => List.unmodifiable(_recentPoses);
   int get poseCount => _recentPoses.length;
+  Size? get lastInputImageSize => _lastInputImageSize;
+  InputImageRotation? get lastInputImageRotation => _lastInputImageRotation;
 
   Future<bool> initialize({CameraDescription? camera}) async {
     try {
@@ -45,7 +50,11 @@ class PoseDetectionService {
     }
 
     try {
-      final inputImage = _cameraImageToInputImage(cameraImage);
+      final rotation = _getImageRotation();
+      _lastInputImageSize = Size(cameraImage.width.toDouble(), cameraImage.height.toDouble());
+      _lastInputImageRotation = rotation;
+
+      final inputImage = _cameraImageToInputImage(cameraImage, rotation);
       final poses = await _poseDetector!.processImage(inputImage);
 
       // Store lightweight recent pose list for stats
@@ -56,6 +65,12 @@ class PoseDetectionService {
       print('Pose detection error: $e');
       return [];
     }
+  }
+
+  /// Returns the first detected pose, or null if none. Use for single-player.
+  Future<Pose?> detectFirstPose(CameraImage cameraImage) async {
+    final poses = await detectPoses(cameraImage);
+    return poses.isNotEmpty ? poses.first : null;
   }
 
   /// Detect movement between current and reference poses
@@ -193,7 +208,7 @@ class PoseDetectionService {
   }
 
   /// Convert CameraImage to InputImage
-  InputImage _cameraImageToInputImage(CameraImage cameraImage) {
+  InputImage _cameraImageToInputImage(CameraImage cameraImage, InputImageRotation rotation) {
     final format = InputImageFormatValue.fromRawValue(cameraImage.format.raw);
 
     if (format == null) {
@@ -202,7 +217,6 @@ class PoseDetectionService {
       );
     }
 
-    final rotation = _getImageRotation();
     final bytes = _concatenatePlanes(cameraImage.planes);
 
     return InputImage.fromBytes(

@@ -42,7 +42,7 @@ class DetectionSettings {
     this.greenLightDurationSecondsMax = 6,
     this.redLightDurationSecondsMin = 2,
     this.redLightDurationSecondsMax = 5,
-    this.redLightFreezeGraceMs = 800,
+    this.redLightFreezeGraceMs = 400,
   });
 
   /// Returns a random duration (in seconds) within [minSeconds] and [maxSeconds]
@@ -67,10 +67,10 @@ class DetectionSettings {
       movementThresholdPx: movementThresholdPx ?? this.movementThresholdPx,
       stabilityFramesRequired:
           stabilityFramesRequired ?? this.stabilityFramesRequired,
-      greenLightDurationSecondsMin: greenLightDurationSecondsMin ??
-          this.greenLightDurationSecondsMin,
-      greenLightDurationSecondsMax: greenLightDurationSecondsMax ??
-          this.greenLightDurationSecondsMax,
+      greenLightDurationSecondsMin:
+          greenLightDurationSecondsMin ?? this.greenLightDurationSecondsMin,
+      greenLightDurationSecondsMax:
+          greenLightDurationSecondsMax ?? this.greenLightDurationSecondsMax,
       redLightDurationSecondsMin:
           redLightDurationSecondsMin ?? this.redLightDurationSecondsMin,
       redLightDurationSecondsMax:
