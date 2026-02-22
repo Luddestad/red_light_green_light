@@ -32,7 +32,7 @@ class _StartScreenState extends State<StartScreen> {
   /// Initialize services in background while user reads rules
   Future<void> _initializeServices() async {
     await _cameraService.initialize();
-    await _poseService.initialize();
+    await _poseService.initialize(camera: _cameraService.controller?.description);
     await _audioService.initialize();
   }
 

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui' show Size;
 import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_mlkit_pose_detection/google_mlkit_pose_detection.dart';
@@ -35,13 +36,20 @@ class GameController extends ChangeNotifier {
   bool isPlayerMoving = false;
   bool isProcessing = false;
   int countdownSeconds = 20;
-  int frameCount = 0;
   bool playerDetectionAnnounced = false;
 
   Timer? countdownTimer;
   Timer? gameTimer;
   bool _isTransitioningToRedLight = false;
   bool _hasReducedCountdownForStable = false;
+
+  /// Input image metadata for overlay (from last processed frame).
+  Size? get overlayImageSize => poseDetectionService.lastInputImageSize;
+  InputImageRotation get overlayRotation =>
+      poseDetectionService.lastInputImageRotation ?? InputImageRotation.rotation0deg;
+  CameraLensDirection get overlayLensDirection =>
+      cameraService.controller?.description.lensDirection ?? CameraLensDirection.front;
+
   Future<void> initializeGame() async {
     gameSession = GameSession(
       greenLightDuration: settings.getRandomDurationInRange(
@@ -355,29 +363,18 @@ class GameController extends ChangeNotifier {
     }
   }
 
-  /// Get frame skip value based on game state (adaptive performance)
-  int getFrameSkip() {
-    if (!isPlayerStable) return 2; // Every 2nd frame during initialization
-    if (gameSession.currentState == GameState.redLight)
-      return 2; // More frequent during red light
-    return 4; // Every 4th frame during green/waiting (save battery)
-  }
-
-  /// Update pose detection (simplified for single player)
-  Future<void> updatePoseDetection(List<Pose> poses) async {
-    // Check if we have pose detected
-    if (poses.isEmpty) {
+  /// Update pose detection (single player)
+  Future<void> updatePoseDetection(Pose? pose) async {
+    if (pose == null) {
       isPlayerDetected = false;
       currentPose = null;
       stabilityFrames = 0;
       isPlayerStable = false;
       playerDetectionAnnounced = false;
-      print('🚫 No pose detected');
       return;
     }
 
-    // Use the first (best) pose
-    currentPose = poses.first;
+    currentPose = pose;
     isPlayerDetected = true;
 
     // Check pose quality (minimum valid landmarks)
@@ -392,9 +389,6 @@ class GameController extends ChangeNotifier {
     }
 
     isPlayerStable = stabilityFrames >= settings.stabilityFramesRequired;
-    print(
-      '👤 Pose detected: $validLandmarks landmarks, stable=$isPlayerStable ($stabilityFrames/${settings.stabilityFramesRequired})',
-    );
 
     // Handle detection announcement
     await handleDetectionAnnouncement();
@@ -403,19 +397,11 @@ class GameController extends ChangeNotifier {
   Future<void> processImage(CameraImage image) async {
     if (isProcessing) return;
 
-    // Adaptive frame skipping for better performance
-    frameCount++;
-    final frameSkip = getFrameSkip();
-    if (frameCount % frameSkip != 0) return;
-
     isProcessing = true;
 
     try {
-      // Step 1: Run pose detection
-      final poses = await poseDetectionService.detectPoses(image);
-
-      // Step 2: Update pose detection state
-      await updatePoseDetection(poses);
+      final pose = await poseDetectionService.detectFirstPose(image);
+      await updatePoseDetection(pose);
 
       // Step 3: Check for movement violations during red light
       if (gameSession.currentState == GameState.redLight) {
@@ -425,6 +411,7 @@ class GameController extends ChangeNotifier {
       print('Detection error: $e');
     } finally {
       isProcessing = false;
+      notifyListeners();
     }
   }
 }

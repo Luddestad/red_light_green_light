@@ -69,9 +69,6 @@ class CameraService {
 
     try {
       await _controller!.startImageStream((CameraImage image) {
-        print(
-          'Camera image received: ${image.width}x${image.height}, format: ${image.format.raw}',
-        );
         _imageStreamController?.add(image);
       });
       return true;

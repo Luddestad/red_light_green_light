@@ -234,14 +234,13 @@ class _GameScreenState extends State<GameScreen> {
                   child: IgnorePointer(
                     // Allow touches to pass through
                     child: MovementOverlayWidget(
-                      poses: [controller.currentPose!],
-                      cameraSize:
-                          controller
-                              .cameraService
-                              .controller
-                              ?.value
-                              .previewSize ??
+                      pose: controller.currentPose,
+                      imageSize:
+                          controller.overlayImageSize ??
+                          controller.cameraService.controller?.value.previewSize ??
                           Size.zero,
+                      rotation: controller.overlayRotation,
+                      cameraLensDirection: controller.overlayLensDirection,
                     ),
                   ),
                 ),
