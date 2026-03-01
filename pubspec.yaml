@@ -36,18 +36,18 @@ dependencies:
   cupertino_icons: ^1.0.8
 
   # Computer Vision & ML
-  camera: ^0.10.5+5
+  camera: ^0.12.0
   google_mlkit_pose_detection: ^0.14.0
 
   # Audio & Voice
-  flutter_tts: ^3.8.5
-  audioplayers: ^5.2.1
+  flutter_tts: ^4.2.5
+  audioplayers: ^6.5.1
 
   # Utilities
-  permission_handler: ^11.2.0
+  permission_handler: ^12.0.1
   path_provider: ^2.1.2
   flutter_svg: ^2.0.10+1
-  google_fonts: ^6.2.1
+  google_fonts: ^8.0.2
 
 dev_dependencies:
   flutter_test:
@@ -58,7 +58,7 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^5.0.0
+  flutter_lints: ^6.0.0
   flutter_launcher_icons: ^0.14.3
 
 # For information on the generic Dart part of this file, see the
