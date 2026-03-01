@@ -74,17 +74,17 @@ class GameController extends ChangeNotifier {
   }
 
   void startCountdown() {
-    countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+    countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) async {
       countdownSeconds--;
       notifyListeners();
 
       if (countdownSeconds <= 4 && countdownSeconds > 0) {
-        audioService.speak(countdownSeconds.toString());
+        await audioService.speak(countdownSeconds.toString());
       }
 
       if (countdownSeconds <= 0) {
         timer.cancel();
-        startGame();
+        await startGame();
       }
     });
   }
@@ -121,7 +121,7 @@ class GameController extends ChangeNotifier {
   }
 
   void startGameLoop() {
-    gameTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+    gameTimer = Timer.periodic(const Duration(seconds: 1), (timer) async {
       final elapsed = DateTime.now().difference(
         gameSession.currentPhaseStartTime!,
       );
@@ -131,7 +131,7 @@ class GameController extends ChangeNotifier {
           if (elapsed >= gameSession.greenLightDuration &&
               !_isTransitioningToRedLight) {
             _isTransitioningToRedLight = true;
-            switchToRedLight()
+            await switchToRedLight()
                 .then((_) {})
                 .catchError((error) {
                   print('🔴 Red light transition error: $error');
@@ -143,7 +143,7 @@ class GameController extends ChangeNotifier {
           break;
         case GameState.redLight:
           if (elapsed >= gameSession.redLightDuration) {
-            switchToGreenLight();
+            await switchToGreenLight();
           }
           break;
         case GameState.victory:
@@ -152,7 +152,7 @@ class GameController extends ChangeNotifier {
           break;
         case GameState.gameOver:
           timer.cancel();
-          endGame();
+          await endGame();
           break;
         default:
           break;
@@ -226,7 +226,7 @@ class GameController extends ChangeNotifier {
   }
 
   /// Restart the game
-  void restartGame() {
+  Future<void> restartGame() async {
     // Reset game session with current settings
     gameSession = GameSession(
       greenLightDuration: settings.getRandomDurationInRange(
@@ -259,16 +259,16 @@ class GameController extends ChangeNotifier {
     countdownSeconds = 20;
 
     // Play lobby sound and start countdown again
-    audioService.playLobbySound();
+    await audioService.playLobbySound();
     startCountdown();
     notifyListeners();
   }
 
   /// Go back to home screen
-  void goHome() {
+  Future<void> goHome() async {
     gameTimer?.cancel();
     countdownTimer?.cancel();
-    audioService.stopLobbySound();
+    await audioService.stopLobbySound();
     onGoHome();
   }
 
@@ -300,7 +300,7 @@ class GameController extends ChangeNotifier {
     if (moved) {
       print('🚨 Movement violation detected!');
       isPlayerMoving = true;
-      endGame();
+      await endGame();
     }
   }
 

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -28,7 +29,8 @@ class _LightIndicatorWidgetState extends State<LightIndicatorWidget>
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 1500),
       vsync: this,
-    )..repeat();
+    );
+    unawaited(_animationController.repeat());
   }
 
   @override

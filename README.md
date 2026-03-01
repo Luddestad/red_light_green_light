@@ -47,3 +47,5 @@ then
 `pod repo update`
 
 `pod install`
+
+open Runner.xcworkspace in xcode to run the app

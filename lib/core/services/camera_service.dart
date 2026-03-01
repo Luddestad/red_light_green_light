@@ -24,7 +24,7 @@ class CameraService {
   /// Initialize camera service
   Future<bool> initialize() async {
     try {
-      checkCameraPerimissions();
+      await checkCameraPerimissions();
 
       // Get available cameras
       _cameras = await availableCameras();
@@ -82,7 +82,7 @@ class CameraService {
   Future<void> stopPreview() async {
     try {
       await _controller?.stopImageStream();
-      _imageStreamController?.close();
+      await _imageStreamController?.close();
       _imageStreamController = null;
     } catch (e) {
       print('Failed to stop camera preview: $e');

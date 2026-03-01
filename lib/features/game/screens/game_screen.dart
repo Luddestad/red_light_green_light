@@ -194,8 +194,8 @@ class _GameScreenState extends State<GameScreen> {
                   left: 50,
                   right: 50,
                   child: ElevatedButton(
-                    onPressed: () {
-                      controller.winGame();
+                    onPressed: () async {
+                      await controller.winGame();
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green,

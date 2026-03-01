@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -26,7 +28,7 @@ class _StartScreenState extends State<StartScreen> {
   @override
   void initState() {
     super.initState();
-    _initializeServices();
+    unawaited(_initializeServices());
   }
 
   /// Initialize services in background while user reads rules
@@ -181,7 +183,7 @@ class _StartScreenState extends State<StartScreen> {
     await controller.initializeGame();
 
     if (!mounted) return;
-    Navigator.of(context).push(
+    await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => GameScreen(gameController: controller),
       ),

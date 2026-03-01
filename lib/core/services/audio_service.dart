@@ -181,8 +181,8 @@ class AudioService {
   bool get isInitialized => _isInitialized;
 
   /// Dispose of resources
-  void dispose() {
-    _tts.stop();
-    _audioPlayer.dispose();
+  Future<void> dispose() async {
+    await _tts.stop();
+    await _audioPlayer.dispose();
   }
 }
