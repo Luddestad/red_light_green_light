@@ -1,0 +1,20 @@
+This is a flutter application thats going to use computervision through (tensorflow or Google ml studio or both).
+
+App functionality:
+
+Red light, Green light with Computer vision.
+- Singular or multiple users can register in a lobby screen with name and face capture for later recognition of rule violations(moving while light is red).
+
+- In the lobby phase when all users are registered you can click play now button and the Narrator says get in position and the game starts after 30 seconds.
+
+- Voice model saying "Red light" and "Green light" as the game goes on.
+
+- The interval between red light and green light is between a span that makes sense for the users to at least move a bit.
+
+- Use pose detection to detect movement when red light is triggered. can also supplement with additional models to detect movement or to detect indiviudal players.
+
+- Optmially the narrator should say which player (by registered name) has moved on red light (can be multiple).
+
+- Sound effects should be played for the different events.
+
+- The sound effects can be provided later but it would be nice to use a voice model or library for the different game phases
