@@ -67,8 +67,8 @@ class GameController extends ChangeNotifier {
     await cameraService.startPreview();
     cameraService.imageStream?.listen(processImage);
 
-    await audioService.playLobbySound();
-    await audioService.speak(GameConstants.welcomeMessage);
+    unawaited(audioService.playLobbySound());
+    unawaited(audioService.speak(GameConstants.welcomeMessage));
 
     startCountdown();
   }
@@ -90,12 +90,6 @@ class GameController extends ChangeNotifier {
   }
 
   Future<void> startGame() async {
-    // Check if player is stable
-    if (!isPlayerStable) {
-      await audioService.speak(GameConstants.waitingForStableConnection);
-      return;
-    }
-
     // Stop the countdown timer since game is starting
     countdownTimer?.cancel();
 
@@ -259,7 +253,7 @@ class GameController extends ChangeNotifier {
     countdownSeconds = 20;
 
     // Play lobby sound and start countdown again
-    await audioService.playLobbySound();
+    unawaited(audioService.playLobbySound());
     startCountdown();
     notifyListeners();
   }

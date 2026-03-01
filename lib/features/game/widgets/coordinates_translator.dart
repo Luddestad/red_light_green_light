@@ -23,6 +23,11 @@ double translateX(
               (Platform.isIOS ? imageSize.width : imageSize.height);
     case InputImageRotation.rotation0deg:
     case InputImageRotation.rotation180deg:
+      if (Platform.isIOS) {
+        // iOS: CameraPreview already mirrors the front camera,
+        // so don't mirror again in the coordinate translation
+        return x * canvasSize.width / imageSize.width;
+      }
       switch (cameraLensDirection) {
         case CameraLensDirection.back:
           return x * canvasSize.width / imageSize.width;
