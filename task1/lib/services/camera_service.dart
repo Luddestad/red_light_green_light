@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:flutter/widgets.dart';
-import '../constants/game_constants.dart';
 import 'permission_service.dart';
 
 /// Service for managing camera functionality
@@ -25,7 +24,7 @@ class CameraService {
   /// Initialize camera service
   Future<bool> initialize() async {
     try {
-      await checkCameraPerimissions();
+      await checkCameraPermissions();
 
       // Get available cameras
       _cameras = await availableCameras();
@@ -48,9 +47,9 @@ class CameraService {
         ResolutionPreset.high,
         enableAudio: false,
         imageFormatGroup: Platform.isAndroid
-          ? ImageFormatGroup.nv21 // for Android
-          : ImageFormatGroup.bgra8888, // for iOS
-,
+            ? ImageFormatGroup
+                  .nv21 // for Android
+            : ImageFormatGroup.bgra8888, // for iOS
       );
 
       await _controller!.initialize();
@@ -82,23 +81,12 @@ class CameraService {
     }
   }
 
-  /// Stop camera preview
-  Future<void> stopPreview() async {
-    try {
-      await _controller?.stopImageStream();
-      await _imageStreamController?.close();
-      _imageStreamController = null;
-    } catch (e) {
-      print('Failed to stop camera preview: $e');
-    }
-  }
-
-  Future<bool> checkCameraPerimissions() async {
+  Future<bool> checkCameraPermissions() async {
     final permissionService = PermissionService();
     if (!await permissionService.isCameraPermissionGranted()) {
       final granted = await permissionService.requestCameraPermission();
       if (!granted) {
-        throw Exception(GameConstants.cameraPermissionDenied);
+        throw Exception('Camera permission is required to play the game');
       }
       return granted;
     }
@@ -117,7 +105,6 @@ class CameraService {
   /// Dispose camera resources
   Future<void> dispose() async {
     try {
-      await stopPreview();
       await _controller?.dispose();
       _controller = null;
       _isInitialized = false;
@@ -148,5 +135,4 @@ class CameraService {
       'isInitialized': _isInitialized,
     };
   }
-
 }

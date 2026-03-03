@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:flutter/widgets.dart';
 import '../constants/game_constants.dart';
@@ -46,7 +47,10 @@ class CameraService {
         camera,
         ResolutionPreset.high,
         enableAudio: false,
-        imageFormatGroup: ImageFormatGroup.nv21,
+        imageFormatGroup: Platform.isAndroid
+            ? ImageFormatGroup
+                  .nv21 // for Android
+            : ImageFormatGroup.bgra8888, // for iOS
       );
 
       await _controller!.initialize();
@@ -145,24 +149,4 @@ class CameraService {
     };
   }
 
-  Future<void> setFlashMode(FlashMode mode) async {
-    if (!_isInitialized || _controller == null) return;
-
-    try {
-      await _controller!.setFlashMode(mode);
-    } catch (e) {
-      print('Failed to set flash mode: $e');
-    }
-  }
-
-  /// Set camera focus mode
-  Future<void> setFocusMode(FocusMode mode) async {
-    if (!_isInitialized || _controller == null) return;
-
-    try {
-      await _controller!.setFocusMode(mode);
-    } catch (e) {
-      print('Failed to set focus mode: $e');
-    }
-  }
 }
