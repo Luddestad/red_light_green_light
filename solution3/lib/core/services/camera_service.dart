@@ -50,7 +50,6 @@ class CameraService {
         imageFormatGroup: Platform.isAndroid
           ? ImageFormatGroup.nv21 // for Android
           : ImageFormatGroup.bgra8888, // for iOS
-,
       );
 
       await _controller!.initialize();
