@@ -44,12 +44,21 @@ class PoseDetectionService {
     }
 
     try {
+      final startMs = DateTime.now().millisecondsSinceEpoch;
+
       final rotation = _getImageRotation();
       _lastInputImageSize = Size(cameraImage.width.toDouble(), cameraImage.height.toDouble());
       _lastInputImageRotation = rotation;
 
       final inputImage = _cameraImageToInputImage(cameraImage, rotation);
       final poses = await _poseDetector!.processImage(inputImage);
+
+      final endMs = DateTime.now().millisecondsSinceEpoch;
+      if (Platform.isAndroid) {
+        print(
+          '[PoseLatency][Android] detectPoses (conversion + ML Kit) took ${endMs - startMs} ms',
+        );
+      }
 
       return poses;
     } catch (e) {

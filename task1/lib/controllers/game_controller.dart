@@ -11,12 +11,18 @@ class GameController extends ChangeNotifier {
   final CameraService cameraService;
   final PoseDetectionService poseDetectionService;
 
+  /// Max time to wait for pose detection per frame; after this we skip the
+  /// result and process the next frame so overlay latency stays bounded.
+  /// The native ML call may still run in the background; we just stop waiting.
+  static const Duration maxFrameProcessingTime = Duration(milliseconds: 150);
+
   GameController({
     required this.cameraService,
     required this.poseDetectionService,
   });
 
   Pose? currentPose;
+  bool isProcessing = false;
 
   /// Input image metadata for overlay (from last processed frame).
   Size? get overlayImageSize => poseDetectionService.lastInputImageSize;
@@ -51,12 +57,22 @@ class GameController extends ChangeNotifier {
   }
 
   Future<void> processImage(CameraImage image) async {
+    if (isProcessing) return;
+
+    isProcessing = true;
     try {
-      final pose = await poseDetectionService.detectFirstPose(image);
-      await updatePoseDetection(pose);
+      final pose = await poseDetectionService
+          .detectFirstPose(image)
+          .timeout(maxFrameProcessingTime, onTimeout: () => null);
+
+      // Only update when we got a result; on timeout pose is null, keep last pose
+      if (pose != null) {
+        await updatePoseDetection(pose);
+      }
     } catch (e) {
       print('Detection error: $e');
     } finally {
+      isProcessing = false;
       notifyListeners();
     }
   }
