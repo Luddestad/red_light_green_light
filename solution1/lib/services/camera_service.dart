@@ -113,16 +113,6 @@ class CameraService {
     }
   }
 
-  Future<bool> isCameraAvailable() async {
-    try {
-      final cameras = await availableCameras();
-      return cameras.isNotEmpty;
-    } catch (e) {
-      print('Error checking camera availability: $e');
-      return false;
-    }
-  }
-
   Map<String, dynamic> getCameraInfo() {
     if (!_isInitialized || _controller == null) {
       return {};

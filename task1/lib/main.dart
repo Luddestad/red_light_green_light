@@ -60,62 +60,61 @@ class MainAppState extends State<MainApp> {
 
     return MaterialApp(
       home: ListenableBuilder(
-      listenable: gc,
-      builder: (context, child) {
-        final controller = gc;
-        return Scaffold(
-          backgroundColor: Colors.black,
-          body: Stack(
-            children: [
-              // Camera preview
-              if (controller.cameraService.isInitialized)
-                Positioned.fill(
-                  child: Center(
-                    child: AspectRatio(
-                      aspectRatio:
-                          1.0 /
-                          controller
-                              .cameraService
-                              .controller!
-                              .value
-                              .aspectRatio,
-                      child: Stack(
-                        children: [
-                          controller.cameraService.getCameraPreview() ??
-                              Container(),
+        listenable: gc,
+        builder: (context, child) {
+          final controller = gc;
+          return Scaffold(
+            backgroundColor: Colors.black,
+            body: Stack(
+              children: [
+                // Camera preview
+                if (controller.cameraService.isInitialized)
+                  Positioned.fill(
+                    child: Center(
+                      child: AspectRatio(
+                        aspectRatio:
+                            1.0 /
+                            controller
+                                .cameraService
+                                .controller!
+                                .value
+                                .aspectRatio,
+                        child: Stack(
+                          children: [
+                            controller.cameraService.getCameraPreview() ??
+                                Container(),
 
-                          // Movement detection overlay
-                          if (controller.currentPose != null)
-                            Positioned.fill(
-                              child: IgnorePointer(
-                                // Allow touches to pass through
-                                child: MovementOverlayWidget(
-                                  pose: controller.currentPose,
-                                  imageSize:
-                                      controller.overlayImageSize ??
-                                      controller
-                                          .cameraService
-                                          .controller
-                                          ?.value
-                                          .previewSize ??
-                                      Size.zero,
-                                  rotation: controller.overlayRotation,
-                                  cameraLensDirection:
-                                      controller.overlayLensDirection,
+                            // Movement detection overlay
+                            if (controller.currentPose != null)
+                              Positioned.fill(
+                                child: IgnorePointer(
+                                  // Allow touches to pass through
+                                  child: MovementOverlayWidget(
+                                    pose: controller.currentPose,
+                                    imageSize:
+                                        controller.overlayImageSize ??
+                                        controller
+                                            .cameraService
+                                            .controller
+                                            ?.value
+                                            .previewSize ??
+                                        Size.zero,
+                                    rotation: controller.overlayRotation,
+                                    cameraLensDirection:
+                                        controller.overlayLensDirection,
+                                  ),
                                 ),
                               ),
-                            ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
-
-            ],
-          ),
-        );
-      },
-    ),
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 }
