@@ -22,42 +22,47 @@ class CameraService {
   Stream<CameraImage>? get imageStream => _imageStreamController?.stream;
 
   /// Initialize camera service
+  ///
+  /// TODO: Implement the missing parts below. You need to:
+  /// 1. Get the list of available cameras on the device
+  /// 2. Select the front-facing (selfie) camera from that list
+  /// 3. Create a broadcast StreamController for the image stream
+  /// 4. Mark the service as initialized
+  ///
+  /// Return true on success, false on failure.
+  /// See hints/part1_hint1.md if you get stuck!
   Future<bool> initialize() async {
     try {
       await checkCameraPermissions();
 
-      // Get available cameras
-      _cameras = await availableCameras();
-      if (_cameras.isEmpty) {
-        throw Exception('No cameras available');
-      }
+      // TODO: Get available cameras using availableCameras()
+      // and store them in _cameras
 
-      // Use front-facing camera (selfie camera)
-      final camera = _cameras.firstWhere(
-        (camera) => camera.lensDirection == CameraLensDirection.front,
-        orElse: () =>
-            _cameras.first, // Fallback to first camera if no front camera
-      );
 
-      print('Selected camera: ${camera.name}, lens: ${camera.lensDirection}');
+      // TODO: Select the front-facing camera from _cameras
+      // (hint: use .firstWhere() with CameraLensDirection.front)
 
-      // Initialize camera controller - let ML Kit handle the format
+
+      // The camera controller is created for you — it handles
+      // resolution, image format, and platform differences.
       _controller = CameraController(
         camera,
         ResolutionPreset.high,
         enableAudio: false,
         imageFormatGroup: Platform.isAndroid
-            ? ImageFormatGroup
-                  .nv21 // for Android
-            : ImageFormatGroup.bgra8888, // for iOS
+            ? ImageFormatGroup.nv21
+            : ImageFormatGroup.bgra8888,
       );
 
       await _controller!.initialize();
 
-      _imageStreamController = StreamController<CameraImage>.broadcast();
+      // TODO: Create a broadcast StreamController<CameraImage>
+      // and assign it to _imageStreamController
 
-      _isInitialized = true;
-      return true;
+
+      // TODO: Set _isInitialized = true and return true
+
+
     } catch (e) {
       print('Camera initialization failed: $e');
       _isInitialized = false;
@@ -65,20 +70,16 @@ class CameraService {
     }
   }
 
+  /// TODO: Implement this method. You need to:
+  /// 1. Check that the camera is initialized
+  /// 2. Start the image stream on the controller
+  /// 3. Forward each frame to _imageStreamController
+  ///
+  /// Return true on success, false on failure.
+  /// See hints/part2_hint1.md if you get stuck!
   Future<bool> startPreview() async {
-    if (!_isInitialized || _controller == null) {
-      return false;
-    }
-
-    try {
-      await _controller!.startImageStream((CameraImage image) {
-        _imageStreamController?.add(image);
-      });
-      return true;
-    } catch (e) {
-      print('Failed to start camera preview: $e');
-      return false;
-    }
+    // YOUR CODE HERE
+    throw UnimplementedError('Implement startPreview()');
   }
 
   Future<bool> checkCameraPermissions() async {
