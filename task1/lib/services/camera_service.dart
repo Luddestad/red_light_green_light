@@ -30,6 +30,11 @@ class CameraService {
   /// 4. Mark the service as initialized
   ///
   /// Return true on success, false on failure.
+  ///
+  /// Docs:
+  /// - Camera package: https://pub.dev/packages/camera
+  /// - StreamController: https://api.dart.dev/stable/dart-async/StreamController-class.html
+  ///
   /// See hints/part1_hint1.md if you get stuck!
   Future<bool> initialize() async {
     try {
@@ -76,6 +81,10 @@ class CameraService {
   /// 3. Forward each frame to _imageStreamController
   ///
   /// Return true on success, false on failure.
+  ///
+  /// Docs:
+  /// - startImageStream: https://pub.dev/documentation/camera/latest/camera/CameraController/startImageStream.html
+  ///
   /// See hints/part2_hint1.md if you get stuck!
   Future<bool> startPreview() async {
     // YOUR CODE HERE

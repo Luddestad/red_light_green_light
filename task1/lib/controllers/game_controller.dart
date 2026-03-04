@@ -65,6 +65,11 @@ class GameController extends ChangeNotifier {
   /// 4. Call notifyListeners() so the UI updates
   ///
   /// Tip: use .timeout() to skip slow frames and keep the overlay responsive.
+  ///
+  /// Docs:
+  /// - PoseDetectionService: look at pose_detection_service.dart for available methods
+  /// - Dart Futures & timeout: https://api.dart.dev/stable/dart-async/Future/timeout.html
+  ///
   /// See hints/part2_hint2.md if you get stuck!
   Future<void> processImage(CameraImage image) async {
     // YOUR CODE HERE
