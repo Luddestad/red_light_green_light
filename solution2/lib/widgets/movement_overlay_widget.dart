@@ -10,6 +10,7 @@ class MovementOverlayWidget extends StatelessWidget {
   final Size imageSize;
   final InputImageRotation rotation;
   final CameraLensDirection cameraLensDirection;
+  final bool isMoving;
 
   const MovementOverlayWidget({
     super.key,
@@ -17,6 +18,7 @@ class MovementOverlayWidget extends StatelessWidget {
     required this.imageSize,
     required this.rotation,
     required this.cameraLensDirection,
+    this.isMoving = false,
   });
 
   @override
@@ -27,6 +29,7 @@ class MovementOverlayWidget extends StatelessWidget {
         imageSize,
         rotation,
         cameraLensDirection,
+        isMoving: isMoving,
       ),
     );
   }
@@ -38,33 +41,37 @@ class PosePainter extends CustomPainter {
     this.pose,
     this.imageSize,
     this.rotation,
-    this.cameraLensDirection,
-  );
+    this.cameraLensDirection, {
+    this.isMoving = false,
+  });
 
   final Pose? pose;
   final Size imageSize;
   final InputImageRotation rotation;
   final CameraLensDirection cameraLensDirection;
+  final bool isMoving;
 
   @override
   void paint(Canvas canvas, Size size) {
     if (pose == null || imageSize.width == 0 || imageSize.height == 0) return;
     final poses = [pose!];
 
+    final skeletonColor = isMoving ? Colors.red : Colors.green;
+
     final paint = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = 4.0
-      ..color = Colors.green;
+      ..color = skeletonColor;
 
     final leftPaint = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = 3.0
-      ..color = Colors.yellow;
+      ..color = isMoving ? Colors.red.shade300 : Colors.yellow;
 
     final rightPaint = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = 3.0
-      ..color = Colors.blueAccent;
+      ..color = isMoving ? Colors.red.shade700 : Colors.blueAccent;
 
     for (final p in poses) {
       p.landmarks.forEach((_, landmark) {

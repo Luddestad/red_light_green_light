@@ -3,7 +3,8 @@
     "allow": [
       "Bash(flutter analyze:*)",
       "WebFetch(domain:github.com)",
-      "WebFetch(domain:raw.githubusercontent.com)"
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(flutter pub get)"
     ],
     "deny": [],
     "ask": []
