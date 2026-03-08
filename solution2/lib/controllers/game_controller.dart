@@ -122,7 +122,7 @@ class GameController extends ChangeNotifier {
     isProcessing = true;
     try {
       final pose = await poseDetectionService
-          .detectFirstPose(image)
+          .detectPose(image)
           .timeout(maxFrameProcessingTime, onTimeout: () => null);
 
       if (pose != null) {

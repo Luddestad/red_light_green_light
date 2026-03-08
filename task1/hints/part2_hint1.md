@@ -21,4 +21,4 @@ You need to implement **three methods** across two files:
 - `startImageStream()`: https://pub.dev/documentation/camera/latest/camera/CameraController/startImageStream.html
 - `Stream.listen()`: https://api.dart.dev/stable/dart-async/Stream/listen.html
 - `Future.timeout()`: https://api.dart.dev/stable/dart-async/Future/timeout.html
-- Look at `pose_detection_service.dart` to see what methods are available (e.g. `detectFirstPose()`)
+- Look at `pose_detection_service.dart` to see what methods are available (e.g. `detectPose()`)

@@ -38,7 +38,7 @@ class PoseDetectionService {
     }
   }
 
-  Future<List<Pose>> detectPoses(CameraImage cameraImage) async {
+  Future<List<Pose>> _detectPoses(CameraImage cameraImage) async {
     if (!_isInitialized || _poseDetector == null) {
       return [];
     }
@@ -68,8 +68,8 @@ class PoseDetectionService {
   }
 
   /// Returns the first detected pose, or null if none. Use for single-player.
-  Future<Pose?> detectFirstPose(CameraImage cameraImage) async {
-    final poses = await detectPoses(cameraImage);
+  Future<Pose?> detectPose(CameraImage cameraImage) async {
+    final poses = await _detectPoses(cameraImage);
     return poses.isNotEmpty ? poses.first : null;
   }
 

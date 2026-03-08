@@ -394,7 +394,7 @@ class GameController extends ChangeNotifier {
     isProcessing = true;
 
     try {
-      final pose = await poseDetectionService.detectFirstPose(image);
+      final pose = await poseDetectionService.detectPose(image);
       await updatePoseDetection(pose);
 
       // Step 3: Check for movement violations during red light

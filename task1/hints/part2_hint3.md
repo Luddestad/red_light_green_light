@@ -9,7 +9,7 @@ Future<void> processImage(CameraImage image) async {
   isProcessing = true;
   try {
     // Feed the image to the ML model
-    final pose = await poseDetectionService.detectFirstPose(image);
+    final pose = await poseDetectionService.detectPose(image);
 
     // Update the current pose
     if (pose != null) {

@@ -62,7 +62,7 @@ class GameController extends ChangeNotifier {
     isProcessing = true;
     try {
       final pose = await poseDetectionService
-          .detectFirstPose(image)
+          .detectPose(image)
           .timeout(maxFrameProcessingTime, onTimeout: () => null);
 
       // Only update when we got a result; on timeout pose is null, keep last pose
