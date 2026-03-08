@@ -251,10 +251,6 @@ class PoseDetectionService {
         InputImageRotation.rotation0deg;
   }
 
-  void clearRecentPoses() {
-    _recentPoses.clear();
-  }
-
   Future<void> dispose() async {
     try {
       await _poseDetector?.close();
