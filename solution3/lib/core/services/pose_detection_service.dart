@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:google_mlkit_pose_detection/google_mlkit_pose_detection.dart';
 import 'package:camera/camera.dart';
-import '../../features/game/models/pose_landmark.dart';
 
 class PoseDetectionService {
   static final PoseDetectionService _instance =
@@ -13,13 +12,10 @@ class PoseDetectionService {
 
   PoseDetector? _poseDetector;
   bool _isInitialized = false;
-  List<PoseData> _recentPoses = [];
   CameraDescription? _currentCamera;
   Size? _lastInputImageSize;
   InputImageRotation? _lastInputImageRotation;
   bool get isInitialized => _isInitialized;
-  List<PoseData> get recentPoses => List.unmodifiable(_recentPoses);
-  int get poseCount => _recentPoses.length;
   Size? get lastInputImageSize => _lastInputImageSize;
   InputImageRotation? get lastInputImageRotation => _lastInputImageRotation;
 
@@ -57,9 +53,6 @@ class PoseDetectionService {
 
       final inputImage = _cameraImageToInputImage(cameraImage, rotation);
       final poses = await _poseDetector!.processImage(inputImage);
-
-      // Store lightweight recent pose list for stats
-      _recentPoses = poses.map((p) => PoseData.fromPose(p)).toList();
 
       return poses;
     } catch (e) {
@@ -127,7 +120,6 @@ class PoseDetectionService {
       await _poseDetector?.close();
       _poseDetector = null;
       _isInitialized = false;
-      _recentPoses.clear();
       _currentCamera = null;
     } catch (e) {
       print('Error disposing pose detector: $e');
