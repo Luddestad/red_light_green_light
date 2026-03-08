@@ -4,7 +4,8 @@
       "Bash(flutter analyze:*)",
       "WebFetch(domain:github.com)",
       "WebFetch(domain:raw.githubusercontent.com)",
-      "Bash(flutter pub get)"
+      "Bash(flutter pub get)",
+      "Bash(ls -la /Users/havardhaug/Workspace/red_light_green_light/task2/*.md)"
     ],
     "deny": [],
     "ask": []

@@ -1,3 +1,6 @@
-# task1
+# TASKS
+See TODOs
 
-A new Flutter project.
+Investigate the Pose detector output details, check for valid features and measure distances
+
+[game_controller](lib/controllers/game_controller.dart)
