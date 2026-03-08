@@ -7,7 +7,6 @@ import 'package:google_mlkit_pose_detection/google_mlkit_pose_detection.dart';
 
 import 'package:task2/services/camera_service.dart';
 import 'package:task2/services/pose_detection_service.dart';
-import 'package:task2/models/pose_landmark.dart';
 
 class GameController extends ChangeNotifier {
   final CameraService cameraService;
@@ -36,7 +35,6 @@ class GameController extends ChangeNotifier {
   });
 
   Pose? currentPose;
-  PoseData? currentPoseData;
   Pose? baselinePose;
   bool isProcessing = false;
   bool isMoving = false;
@@ -77,12 +75,10 @@ class GameController extends ChangeNotifier {
   Future<void> updatePoseDetection(Pose? pose) async {
     if (pose == null) {
       currentPose = null;
-      currentPoseData = null;
       return;
     }
 
     currentPose = pose;
-    currentPoseData = PoseData.fromPose(pose);
   }
 
   /// TODO 1: Implement movement detection.

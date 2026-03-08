@@ -75,7 +75,6 @@ lib/
 │   └── game/
 │       ├── models/
 │       │   ├── game_state.dart         # Game state machine & session
-│       │   ├── pose_landmark.dart      # Pose data structures
 │       │   └── difficulty_settings.dart # Difficulty configurations
 │       ├── screens/
 │       │   ├── start_screen.dart       # Main menu

@@ -128,15 +128,18 @@ class MainAppState extends State<MainApp> {
   }
 
   Widget _buildStatusPanel(GameController controller) {
-    final poseData = controller.currentPoseData;
+    final pose = controller.currentPose;
 
     // Count valid landmarks
-    final totalLandmarks = poseData?.landmarks.length ?? 0;
-    final validLandmarks =
-        poseData?.landmarks.where((l) => l.isValid).length ?? 0;
+    final totalLandmarks = pose?.landmarks.length ?? 0;
+
+    const validLandmarkThreshold = 0.5;
+    final validLandmarks = pose?.landmarks.entries
+        .where((element) => element.value.likelihood >= validLandmarkThreshold)
+        .length;
 
     // Get nose position
-    final nose = poseData?.getLandmarkByType(PoseLandmarkType.nose);
+    final nose = pose?.landmarks[PoseLandmarkType.nose];
 
     return Container(
       padding: const EdgeInsets.all(16),
