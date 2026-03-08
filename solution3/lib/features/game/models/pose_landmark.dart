@@ -70,52 +70,6 @@ class PoseData {
     }
   }
 
-  /// Get multiple landmarks by types
-  List<PoseLandmarkData> getLandmarksByTypes(List<PoseLandmarkType> types) {
-    return landmarks
-        .where((landmark) => types.contains(landmark.type))
-        .toList();
-  }
-
-  /// Check if pose has sufficient landmarks for movement detection
-  bool get isValidForDetection {
-    const requiredLandmarks = [
-      PoseLandmarkType.leftShoulder,
-      PoseLandmarkType.rightShoulder,
-      PoseLandmarkType.leftHip,
-      PoseLandmarkType.rightHip,
-      PoseLandmarkType.nose,
-    ];
-
-    return requiredLandmarks.every(
-      (type) => getLandmarkByType(type)?.isValid == true,
-    );
-  }
-
-  /// Calculate pose center point
-  PoseLandmarkData? get centerPoint {
-    final shoulders = [
-      getLandmarkByType(PoseLandmarkType.leftShoulder),
-      getLandmarkByType(PoseLandmarkType.rightShoulder),
-    ].where((landmark) => landmark != null).cast<PoseLandmarkData>().toList();
-
-    if (shoulders.length != 2) return null;
-
-    final avgX = shoulders.map((s) => s.x).reduce((a, b) => a + b) / 2;
-    final avgY = shoulders.map((s) => s.y).reduce((a, b) => a + b) / 2;
-    final avgZ = shoulders.map((s) => s.z).reduce((a, b) => a + b) / 2;
-    final avgLikelihood =
-        shoulders.map((s) => s.likelihood).reduce((a, b) => a + b) / 2;
-
-    return PoseLandmarkData(
-      type: PoseLandmarkType.nose, // Use nose as center type
-      x: avgX,
-      y: avgY,
-      z: avgZ,
-      likelihood: avgLikelihood,
-    );
-  }
-
   @override
   String toString() {
     return 'PoseData(landmarks: ${landmarks.length}, timestamp: $timestamp, playerId: ';
