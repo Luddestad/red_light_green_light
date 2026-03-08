@@ -72,10 +72,6 @@ class GameController extends ChangeNotifier {
     notifyListeners();
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
 
   /// Update pose detection (single player)
   Future<void> updatePoseDetection(Pose? pose) async {

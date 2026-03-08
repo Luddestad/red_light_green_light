@@ -1,5 +1,4 @@
 import 'package:google_mlkit_pose_detection/google_mlkit_pose_detection.dart';
-import 'dart:math';
 
 /// Represents a single body landmark detected by ML Kit.
 ///
