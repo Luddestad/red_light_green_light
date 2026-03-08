@@ -80,20 +80,25 @@ class GameController extends ChangeNotifier {
     currentPose = pose;
   }
 
+  /// Get a landmark from a pose if it's reliable (likelihood > 0.5).
+  PoseLandmark? getValidLandmark(Pose pose, PoseLandmarkType type) {
+    final landmark = pose.landmarks[type];
+    if (landmark != null && landmark.likelihood > 0.5) {
+      return landmark;
+    }
+    return null;
+  }
+
   /// Check if someone moved by comparing current pose to baseline.
   ///
-  /// For each key landmark: get it from both poses, check both are
-  /// confident enough (likelihood > 0.5), calculate pixel distance,
-  /// and flag movement if it exceeds the threshold.
+  /// For each key landmark: get it from both poses, calculate pixel
+  /// distance, and flag movement if it exceeds the threshold.
   bool checkSimpleMovement(Pose current, Pose baseline) {
     for (final type in keyLandmarks) {
-      final currentLM = current.landmarks[type];
-      final baselineLM = baseline.landmarks[type];
+      final currentLM = getValidLandmark(current, type);
+      final baselineLM = getValidLandmark(baseline, type);
 
-      if (currentLM != null &&
-          baselineLM != null &&
-          currentLM.likelihood > 0.5 &&
-          baselineLM.likelihood > 0.5) {
+      if (currentLM != null && baselineLM != null) {
         final distance = math.sqrt(
           math.pow(currentLM.x - baselineLM.x, 2) +
               math.pow(currentLM.y - baselineLM.y, 2),

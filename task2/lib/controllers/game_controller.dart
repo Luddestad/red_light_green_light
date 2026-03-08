@@ -81,25 +81,44 @@ class GameController extends ChangeNotifier {
     currentPose = pose;
   }
 
-  /// TODO 1: Implement movement detection.
+  /// TODO 1: Get a landmark from a pose and check if it's reliable.
   ///
-  /// Compare the current pose to the baseline pose to determine if
-  /// the person has moved. For each landmark in keyLandmarks:
+  /// The ML model outputs 33 body landmarks (nose, shoulders, elbows, etc).
+  /// They're stored in a Map<PoseLandmarkType, PoseLandmark>.
   ///
-  /// 1. Get that landmark from both poses using pose.landmarks[type]
-  /// 2. Check that both exist and are confident (likelihood > 0.5)
-  /// 3. Calculate the 2D pixel distance between them:
+  /// Each PoseLandmark has:
+  ///   - x, y  — pixel position in the camera image
+  ///   - z     — depth estimate
+  ///   - likelihood — confidence score from 0.0 to 1.0
+  ///
+  /// A landmark with likelihood > 0.5 means the model is reasonably
+  /// confident it found that body part.
+  ///
+  /// Steps:
+  /// 1. Look up the landmark in pose.landmarks[type]
+  /// 2. If it exists AND its likelihood > 0.5, return it
+  /// 3. Otherwise return null
+  ///
+  /// See hints/hint1.md if you get stuck!
+  PoseLandmark? getValidLandmark(Pose pose, PoseLandmarkType type) {
+    // YOUR CODE HERE
+    throw UnimplementedError('Implement getValidLandmark');
+  }
+
+  /// TODO 2: Detect if the player moved by comparing two poses.
+  ///
+  /// For each landmark type in [keyLandmarks]:
+  /// 1. Use getValidLandmark() to get it from both poses
+  /// 2. If both are valid, calculate the 2D pixel distance:
   ///    sqrt((x2-x1)² + (y2-y1)²)
-  /// 4. If the distance exceeds movementThreshold, return true
+  /// 3. If the distance exceeds movementThreshold, return true
   ///
   /// Return false if no landmark exceeded the threshold.
   ///
   /// Docs:
-  /// - Pose.landmarks is a Map<PoseLandmarkType, PoseLandmark>
-  /// - Each PoseLandmark has: x, y, z, likelihood
   /// - dart:math sqrt/pow: https://api.dart.dev/stable/dart-math/sqrt.html
   ///
-  /// See hints/part2_hint1.md if you get stuck!
+  /// See hints/hint2.md if you get stuck!
   bool checkSimpleMovement(Pose current, Pose baseline) {
     // YOUR CODE HERE
     throw UnimplementedError('Implement checkSimpleMovement');
@@ -118,11 +137,11 @@ class GameController extends ChangeNotifier {
         await updatePoseDetection(pose);
       }
 
-      // TODO 2: If we have a baseline, check for movement.
+      // TODO 3: If we have a baseline, check for movement.
       // Call checkSimpleMovement() with currentPose and baselinePose,
       // and store the result in isMoving.
       //
-      // See hints/part2_hint2.md if you get stuck!
+      // See hints/hint3.md if you get stuck!
     } catch (e) {
       print('Detection error: $e');
     } finally {

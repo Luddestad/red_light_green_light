@@ -6,7 +6,7 @@ import 'coordinates_translator.dart';
 
 /// Widget that overlays pose detection visualization on the camera
 class MovementOverlayWidget extends StatelessWidget {
-  final Pose? pose;
+  final Pose pose;
   final Size imageSize;
   final InputImageRotation rotation;
   final CameraLensDirection cameraLensDirection;
@@ -45,7 +45,7 @@ class PosePainter extends CustomPainter {
     this.isMoving = false,
   });
 
-  final Pose? pose;
+  final Pose pose;
   final Size imageSize;
   final InputImageRotation rotation;
   final CameraLensDirection cameraLensDirection;
@@ -53,8 +53,7 @@ class PosePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    if (pose == null || imageSize.width == 0 || imageSize.height == 0) return;
-    final poses = [pose!];
+    if (imageSize.width == 0 || imageSize.height == 0) return;
 
     final skeletonColor = isMoving ? Colors.red : Colors.green;
 
@@ -73,92 +72,96 @@ class PosePainter extends CustomPainter {
       ..strokeWidth = 3.0
       ..color = isMoving ? Colors.red.shade700 : Colors.blueAccent;
 
-    for (final p in poses) {
-      p.landmarks.forEach((_, landmark) {
-        canvas.drawCircle(
-            Offset(
-              translateX(
-                landmark.x,
-                size,
-                imageSize,
-                rotation,
-                cameraLensDirection,
-              ),
-              translateY(
-                landmark.y,
-                size,
-                imageSize,
-                rotation,
-                cameraLensDirection,
-              ),
-            ),
-            1,
-            paint);
-      });
+    pose.landmarks.forEach((_, landmark) {
+      canvas.drawCircle(
+        Offset(
+          translateX(
+            landmark.x,
+            size,
+            imageSize,
+            rotation,
+            cameraLensDirection,
+          ),
+          translateY(
+            landmark.y,
+            size,
+            imageSize,
+            rotation,
+            cameraLensDirection,
+          ),
+        ),
+        1,
+        paint,
+      );
+    });
 
-      void paintLine(
-          PoseLandmarkType type1, PoseLandmarkType type2, Paint paintType) {
-        final PoseLandmark joint1 = p.landmarks[type1]!;
-        final PoseLandmark joint2 = p.landmarks[type2]!;
-        canvas.drawLine(
-            Offset(
-                translateX(
-                  joint1.x,
-                  size,
-                  imageSize,
-                  rotation,
-                  cameraLensDirection,
-                ),
-                translateY(
-                  joint1.y,
-                  size,
-                  imageSize,
-                  rotation,
-                  cameraLensDirection,
-                )),
-            Offset(
-                translateX(
-                  joint2.x,
-                  size,
-                  imageSize,
-                  rotation,
-                  cameraLensDirection,
-                ),
-                translateY(
-                  joint2.y,
-                  size,
-                  imageSize,
-                  rotation,
-                  cameraLensDirection,
-                )),
-            paintType);
-      }
-
-      // Draw arms
-      paintLine(
-          PoseLandmarkType.leftShoulder, PoseLandmarkType.leftElbow, leftPaint);
-      paintLine(
-          PoseLandmarkType.leftElbow, PoseLandmarkType.leftWrist, leftPaint);
-      paintLine(PoseLandmarkType.rightShoulder, PoseLandmarkType.rightElbow,
-          rightPaint);
-      paintLine(
-          PoseLandmarkType.rightElbow, PoseLandmarkType.rightWrist, rightPaint);
-
-      // Draw body
-      paintLine(
-          PoseLandmarkType.leftShoulder, PoseLandmarkType.leftHip, leftPaint);
-      paintLine(PoseLandmarkType.rightShoulder, PoseLandmarkType.rightHip,
-          rightPaint);
-
-      // Draw legs
-      paintLine(PoseLandmarkType.leftHip, PoseLandmarkType.leftKnee, leftPaint);
-      paintLine(
-          PoseLandmarkType.leftKnee, PoseLandmarkType.leftAnkle, leftPaint);
-      paintLine(
-          PoseLandmarkType.rightHip, PoseLandmarkType.rightKnee, rightPaint);
-      paintLine(
-          PoseLandmarkType.rightKnee, PoseLandmarkType.rightAnkle, rightPaint);
+    void paintLine(
+      PoseLandmarkType type1,
+      PoseLandmarkType type2,
+      Paint paintType,
+    ) {
+      final PoseLandmark joint1 = pose.landmarks[type1]!;
+      final PoseLandmark joint2 = pose.landmarks[type2]!;
+      canvas.drawLine(
+        Offset(
+          translateX(joint1.x, size, imageSize, rotation, cameraLensDirection),
+          translateY(joint1.y, size, imageSize, rotation, cameraLensDirection),
+        ),
+        Offset(
+          translateX(joint2.x, size, imageSize, rotation, cameraLensDirection),
+          translateY(joint2.y, size, imageSize, rotation, cameraLensDirection),
+        ),
+        paintType,
+      );
     }
+
+    // Draw arms
+    paintLine(
+      PoseLandmarkType.leftShoulder,
+      PoseLandmarkType.leftElbow,
+      leftPaint,
+    );
+    paintLine(
+      PoseLandmarkType.leftElbow,
+      PoseLandmarkType.leftWrist,
+      leftPaint,
+    );
+    paintLine(
+      PoseLandmarkType.rightShoulder,
+      PoseLandmarkType.rightElbow,
+      rightPaint,
+    );
+    paintLine(
+      PoseLandmarkType.rightElbow,
+      PoseLandmarkType.rightWrist,
+      rightPaint,
+    );
+
+    // Draw body
+    paintLine(
+      PoseLandmarkType.leftShoulder,
+      PoseLandmarkType.leftHip,
+      leftPaint,
+    );
+    paintLine(
+      PoseLandmarkType.rightShoulder,
+      PoseLandmarkType.rightHip,
+      rightPaint,
+    );
+
+    // Draw legs
+    paintLine(PoseLandmarkType.leftHip, PoseLandmarkType.leftKnee, leftPaint);
+    paintLine(PoseLandmarkType.leftKnee, PoseLandmarkType.leftAnkle, leftPaint);
+    paintLine(
+      PoseLandmarkType.rightHip,
+      PoseLandmarkType.rightKnee,
+      rightPaint,
+    );
+    paintLine(
+      PoseLandmarkType.rightKnee,
+      PoseLandmarkType.rightAnkle,
+      rightPaint,
+    );
   }
 
   @override

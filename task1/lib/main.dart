@@ -85,12 +85,12 @@ class MainAppState extends State<MainApp> {
                                 Container(),
 
                             // Movement detection overlay
-                            if (controller.currentPose != null)
+                            if (controller.currentPose case final pose?)
                               Positioned.fill(
                                 child: IgnorePointer(
                                   // Allow touches to pass through
                                   child: MovementOverlayWidget(
-                                    pose: controller.currentPose,
+                                    pose: pose,
                                     imageSize:
                                         controller.overlayImageSize ??
                                         controller

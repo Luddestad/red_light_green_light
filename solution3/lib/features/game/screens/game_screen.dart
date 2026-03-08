@@ -50,27 +50,27 @@ class _GameScreenState extends State<GameScreen> {
                               Container(),
 
                           // Movement detection overlay
-                          if (controller.gameSession.isDetectingMovement &&
-                              controller.currentPose != null)
-                            Positioned.fill(
-                              child: IgnorePointer(
-                                // Allow touches to pass through
-                                child: MovementOverlayWidget(
-                                  pose: controller.currentPose,
-                                  imageSize:
-                                      controller.overlayImageSize ??
-                                      controller
-                                          .cameraService
-                                          .controller
-                                          ?.value
-                                          .previewSize ??
-                                      Size.zero,
-                                  rotation: controller.overlayRotation,
-                                  cameraLensDirection:
-                                      controller.overlayLensDirection,
+                          if (controller.gameSession.isDetectingMovement)
+                            if (controller.currentPose case final pose?)
+                              Positioned.fill(
+                                child: IgnorePointer(
+                                  // Allow touches to pass through
+                                  child: MovementOverlayWidget(
+                                    pose: pose,
+                                    imageSize:
+                                        controller.overlayImageSize ??
+                                        controller
+                                            .cameraService
+                                            .controller
+                                            ?.value
+                                            .previewSize ??
+                                        Size.zero,
+                                    rotation: controller.overlayRotation,
+                                    cameraLensDirection:
+                                        controller.overlayLensDirection,
+                                  ),
                                 ),
                               ),
-                            ),
                         ],
                       ),
                     ),
