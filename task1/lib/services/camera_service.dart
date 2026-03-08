@@ -43,10 +43,8 @@ class CameraService {
       // TODO: Get available cameras using availableCameras()
       // and store them in _cameras
 
-
       // TODO: Select the front-facing camera from _cameras
       // (hint: use .firstWhere() with CameraLensDirection.front)
-
 
       // The camera controller is created for you — it handles
       // resolution, image format, and platform differences.
@@ -64,10 +62,7 @@ class CameraService {
       // TODO: Create a broadcast StreamController<CameraImage>
       // and assign it to _imageStreamController
 
-
       // TODO: Set _isInitialized = true and return true
-
-
     } catch (e) {
       print('Camera initialization failed: $e');
       _isInitialized = false;
@@ -121,18 +116,5 @@ class CameraService {
     } catch (e) {
       print('Error disposing camera: $e');
     }
-  }
-
-  Map<String, dynamic> getCameraInfo() {
-    if (!_isInitialized || _controller == null) {
-      return {};
-    }
-
-    return {
-      'name': _controller!.description.name,
-      'lensDirection': _controller!.description.lensDirection.toString(),
-      'sensorOrientation': _controller!.description.sensorOrientation,
-      'isInitialized': _isInitialized,
-    };
   }
 }

@@ -112,17 +112,4 @@ class CameraService {
       print('Error disposing camera: $e');
     }
   }
-
-  Map<String, dynamic> getCameraInfo() {
-    if (!_isInitialized || _controller == null) {
-      return {};
-    }
-
-    return {
-      'name': _controller!.description.name,
-      'lensDirection': _controller!.description.lensDirection.toString(),
-      'sensorOrientation': _controller!.description.sensorOrientation,
-      'isInitialized': _isInitialized,
-    };
-  }
 }

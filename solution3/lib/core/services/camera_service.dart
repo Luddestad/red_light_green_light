@@ -48,8 +48,9 @@ class CameraService {
         ResolutionPreset.high,
         enableAudio: false,
         imageFormatGroup: Platform.isAndroid
-          ? ImageFormatGroup.nv21 // for Android
-          : ImageFormatGroup.bgra8888, // for iOS
+            ? ImageFormatGroup
+                  .nv21 // for Android
+            : ImageFormatGroup.bgra8888, // for iOS
       );
 
       await _controller!.initialize();
@@ -124,18 +125,4 @@ class CameraService {
       print('Error disposing camera: $e');
     }
   }
-
-  Map<String, dynamic> getCameraInfo() {
-    if (!_isInitialized || _controller == null) {
-      return {};
-    }
-
-    return {
-      'name': _controller!.description.name,
-      'lensDirection': _controller!.description.lensDirection.toString(),
-      'sensorOrientation': _controller!.description.sensorOrientation,
-      'isInitialized': _isInitialized,
-    };
-  }
-
 }
