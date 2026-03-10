@@ -11,7 +11,7 @@ class CameraService {
   CameraService._internal();
 
   CameraController? _controller;
-  final List<CameraDescription> _cameras = [];
+  List<CameraDescription> _cameras = [];
   bool _isInitialized = false;
   StreamController<CameraImage>? _imageStreamController;
 
