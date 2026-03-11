@@ -13,6 +13,17 @@ https://docs.flutter.dev/platform-integration/ios/setup
 Android:
 https://docs.flutter.dev/platform-integration/android/setup
 
+For IOS you might need to upgrade your Ruby version to run cocoapods.
+```
+`brew upgrade ruby`
+
+`echo 'export PATH="/opt/homebrew/opt/ruby/bin:$PATH"' >> ~/.zshrc`
+
+`brew link --overwrite ruby`
+
+`sudo gem update --system `
+```
+
 ## Enable Developer Options & USB Debugging on device.
 
 IOS
