@@ -10,6 +10,7 @@ Scroll to the bottom and do the additional setup for your target mobile device (
 
 IOS:
 https://docs.flutter.dev/platform-integration/ios/setup
+
 Android:
 https://docs.flutter.dev/platform-integration/android/setup
 
@@ -28,6 +29,7 @@ For IOS you might need to upgrade your Ruby version to run cocoapods.
 
 IOS
 https://developer.apple.com/documentation/xcode/enabling-developer-mode-on-a-device
+
 ANDROID
 https://developer.android.com/studio/debug/dev-options
 
