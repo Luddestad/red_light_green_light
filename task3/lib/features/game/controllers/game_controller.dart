@@ -311,7 +311,7 @@ class GameController extends ChangeNotifier {
   /// This method is called every frame during red light. You need to
   /// decide whether the player has violated the "freeze" rule.
   ///
-  /// But you can't just blindly check — there are several conditions
+  /// But you can't just blindly check. There are several conditions
   /// that must ALL be true before checking movement:
   ///
   /// Guard conditions (return early if any fail):
@@ -322,8 +322,8 @@ class GameController extends ChangeNotifier {
   ///    baselinePose and currentPose must exist
   ///
   /// If all guards pass:
-  /// - Call checkSimpleMovement(currentPose!, baselinePose!)
-  /// - If it returns true: set isPlayerMoving = true and call endGame()
+  /// - Call checkSimpleMovement.
+  /// - If the player is moving: adjust isPlayerMoving and call the endGame method.
   ///
   /// See hints/hint3.md if you get stuck!
   Future<void> checkForMovementViolations() async {
