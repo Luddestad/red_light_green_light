@@ -43,8 +43,7 @@ class CameraService {
       // TODO: Get available cameras using availableCameras()
       // and store them in _cameras
 
-      // TODO: Select the front-facing camera from _cameras
-      // (hint: use .firstWhere() with CameraLensDirection.front)
+      // TODO: Select the front-facing camera
 
       // The camera controller is created for you — it handles
       // resolution, image format, and platform differences.
@@ -62,7 +61,7 @@ class CameraService {
       // TODO: Create a broadcast StreamController<CameraImage>
       // and assign it to _imageStreamController
 
-      // TODO: Set _isInitialized = true and return true
+      // TODO: Mark the service as initialized
     } catch (e) {
       print('Camera initialization failed: $e');
       _isInitialized = false;
