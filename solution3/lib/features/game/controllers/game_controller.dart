@@ -154,6 +154,24 @@ class GameController extends ChangeNotifier {
     });
   }
 
+  /// TODO 2: Announce red light, wait for the player to freeze, then
+  /// capture their pose as the baseline.
+  ///
+  /// Without the grace period, the player would be eliminated while still
+  /// reacting to the announcement — that's not fair!
+  ///
+  /// The state transition and duration randomization are done for you.
+  /// You need to implement the announcement + baseline capture:
+  ///
+  /// 1. Announce red light: audioService.announceRedLight(GameConstants.redLightMessage)
+  ///    Wrap in try/catch so audio errors don't break the game.
+  /// 2. Wait for the grace period: settings.redLightFreezeGraceMs milliseconds
+  ///    Use: await Future.delayed(Duration(milliseconds: ...))
+  /// 3. If the player is stable and has a pose (currentPose != null):
+  ///    - Save currentPose as baselinePose (their "freeze" position)
+  ///    - Set isPlayerMoving = false
+  ///
+  /// See hints/hint2.md if you get stuck!
   Future<void> switchToRedLight() async {
     baselinePose = null;
     gameSession.redLightDuration = settings.getRandomDurationInRange(
@@ -274,6 +292,27 @@ class GameController extends ChangeNotifier {
     super.dispose();
   }
 
+  /// TODO 3: Check if the player moved during red light.
+  ///
+  /// This method is called every frame during red light. You need to
+  /// decide whether the player has violated the "freeze" rule.
+  ///
+  /// But you can't just blindly check. There are several conditions
+  /// that must ALL be true before checking movement:
+  ///
+  /// Guard conditions (return early if any fail):
+  /// 1. Game must be in GameState.redLight
+  /// 2. Game must not already be over (gameSession.isGameOver)
+  ///    and player must not already be caught (isPlayerMoving)
+  /// 3. Player must be stable (isPlayerStable) and both
+  ///    baselinePose and currentPose must exist
+  ///
+  /// If all guards pass:
+  /// - Call checkSimpleMovement.
+  /// - If the player is moving: adjust isPlayerMoving and call the endGame method.
+  ///
+  /// See hints/hint3.md if you get stuck!
+  ///
   /// Check for movement violations during red light (simplified)
   Future<void> checkForMovementViolations() async {
     if (gameSession.currentState != GameState.redLight) {
@@ -357,6 +396,28 @@ class GameController extends ChangeNotifier {
     }
   }
 
+  /// TODO 1: Track player stability over multiple frames.
+  ///
+  /// A single frame isn't enough to know if the player is reliably detected.
+  /// You need several consecutive "good" frames before considering them stable.
+  /// This prevents jitter from causing false detections.
+  ///
+  /// When pose is null: reset everything (isPlayerDetected, currentPose,
+  /// stabilityFrames, isPlayerStable, playerDetectionAnnounced).
+  ///
+  /// When pose is not null:
+  /// 1. Store the pose in currentPose and set isPlayerDetected = true
+  /// 2. Count how many landmarks have likelihood > 0.5
+  /// 3. If at least 5 are valid: increment stabilityFrames
+  ///    Otherwise: decrement stabilityFrames (but don't go below 0)
+  /// 4. Set isPlayerStable = true when stabilityFrames reaches
+  ///    settings.stabilityFramesRequired
+  /// 5. Call handleDetectionAnnouncement() at the end
+  ///
+  /// Useful: pose.landmarks.values, math.max(), settings.stabilityFramesRequired
+  ///
+  /// See hints/hint1.md if you get stuck!
+  ///
   /// Update pose detection (single player)
   Future<void> updatePoseDetection(Pose? pose) async {
     if (pose == null) {

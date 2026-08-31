@@ -22,16 +22,34 @@ class CameraService {
   Stream<CameraImage>? get imageStream => _imageStreamController?.stream;
 
   /// Initialize camera service
+  ///
+  /// TODO: Implement the missing parts below. You need to:
+  /// 1. Get the list of available cameras on the device
+  /// 2. Select the front-facing (selfie) camera from that list
+  /// 3. Create a broadcast StreamController for the image stream
+  /// 4. Mark the service as initialized
+  ///
+  /// Return true on success, false on failure.
+  ///
+  /// Docs:
+  /// - Camera package: https://pub.dev/packages/camera
+  /// - StreamController: https://api.dart.dev/stable/dart-async/StreamController-class.html
+  ///
+  /// See hints/part1_hint1.md if you get stuck!
   Future<bool> initialize() async {
     try {
       await checkCameraPermissions();
 
+      // TODO: Get available cameras using availableCameras()
+      // and store them in _cameras
       // Get available cameras
       _cameras = await availableCameras();
       if (_cameras.isEmpty) {
         throw Exception('No cameras available');
       }
 
+      // TODO: Select the front-facing camera from _cameras
+      // (hint: use .firstWhere() with CameraLensDirection.front)
       // Use front-facing camera (selfie camera)
       final camera = _cameras.firstWhere(
         (camera) => camera.lensDirection == CameraLensDirection.front,
@@ -54,8 +72,11 @@ class CameraService {
 
       await _controller!.initialize();
 
+      // TODO: Create a broadcast StreamController<CameraImage>
+      // and assign it to _imageStreamController
       _imageStreamController = StreamController<CameraImage>.broadcast();
 
+      // TODO: Set _isInitialized = true and return true
       _isInitialized = true;
       return true;
     } catch (e) {
@@ -65,6 +86,17 @@ class CameraService {
     }
   }
 
+  /// TODO: Implement this method. You need to:
+  /// 1. Check that the camera is initialized
+  /// 2. Start the image stream on the controller
+  /// 3. Forward each frame to _imageStreamController
+  ///
+  /// Return true on success, false on failure.
+  ///
+  /// Docs:
+  /// - startImageStream: https://pub.dev/documentation/camera/latest/camera/CameraController/startImageStream.html
+  ///
+  /// See hints/part2_hint1.md if you get stuck!
   Future<bool> startPreview() async {
     if (!_isInitialized || _controller == null) {
       return false;

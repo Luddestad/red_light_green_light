@@ -80,6 +80,26 @@ class GameController extends ChangeNotifier {
     currentPose = pose;
   }
 
+  /// TODO 1: Get a landmark from a pose and check if it's reliable.
+  ///
+  /// The ML model outputs 33 body landmarks (nose, shoulders, elbows, etc).
+  /// They're stored in a Map<PoseLandmarkType, PoseLandmark>.
+  ///
+  /// Each PoseLandmark has:
+  ///   - x, y  — pixel position in the camera image
+  ///   - z     — depth estimate
+  ///   - likelihood — confidence score from 0.0 to 1.0
+  ///
+  /// A landmark with likelihood > 0.5 means the model is reasonably
+  /// confident it found that body part.
+  ///
+  /// Steps:
+  /// 1. Look up the landmark in pose.landmarks[type]
+  /// 2. If it exists AND its likelihood > 0.5, return it
+  /// 3. Otherwise return null
+  ///
+  /// See hints/hint1.md if you get stuck!
+  ///
   /// Get a landmark from a pose if it's reliable (likelihood > 0.5).
   PoseLandmark? getValidLandmark(Pose pose, PoseLandmarkType type) {
     final landmark = pose.landmarks[type];
@@ -89,6 +109,21 @@ class GameController extends ChangeNotifier {
     return null;
   }
 
+  /// TODO 2: Detect if the player moved by comparing two poses.
+  ///
+  /// For each landmark type in [keyLandmarks]:
+  /// 1. Use getValidLandmark() to get it from both poses
+  /// 2. If both are valid, calculate the 2D pixel distance:
+  ///    sqrt((x2-x1)² + (y2-y1)²)
+  /// 3. If the distance exceeds movementThreshold, return true
+  ///
+  /// Return false if no landmark exceeded the threshold.
+  ///
+  /// Docs:
+  /// - dart:math sqrt/pow: https://api.dart.dev/stable/dart-math/sqrt.html
+  ///
+  /// See hints/hint2.md if you get stuck!
+  ///
   /// Check if someone moved by comparing current pose to baseline.
   ///
   /// For each key landmark: get it from both poses, calculate pixel
@@ -129,6 +164,11 @@ class GameController extends ChangeNotifier {
         await updatePoseDetection(pose);
       }
 
+      // TODO 3: If we have a baseline, check for movement.
+      // Call checkSimpleMovement() with currentPose and baselinePose,
+      // and store the result in isMoving.
+      //
+      // See hints/hint3.md if you get stuck!
       // Check for movement if we have a baseline
       if (baselinePose != null && currentPose != null) {
         isMoving = checkSimpleMovement(currentPose!, baselinePose!);

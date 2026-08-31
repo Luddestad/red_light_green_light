@@ -33,6 +33,11 @@ class GameController extends ChangeNotifier {
       cameraService.controller?.description.lensDirection ??
       CameraLensDirection.front;
 
+  /// TODO: Implement this method. You need to:
+  /// 1. Start the camera preview
+  /// 2. Listen to the camera image stream and process each frame
+  ///
+  /// See hints/part2_hint1.md if you get stuck!
   Future<void> initializeGame() async {
     // Services are already initialized from StartScreen
     // Just start the camera stream and game-specific setup
@@ -56,6 +61,19 @@ class GameController extends ChangeNotifier {
     currentPose = pose;
   }
 
+  /// TODO: Implement this method. You need to:
+  /// 1. Guard against processing multiple frames at once (use isProcessing)
+  /// 2. Feed the CameraImage to the pose detection service
+  /// 3. Update the current pose with the result
+  /// 4. Call notifyListeners() so the UI updates
+  ///
+  /// Tip: use .timeout() to skip slow frames and keep the overlay responsive.
+  ///
+  /// Docs:
+  /// - PoseDetectionService: look at pose_detection_service.dart for available methods
+  /// - Dart Futures & timeout: https://api.dart.dev/stable/dart-async/Future/timeout.html
+  ///
+  /// See hints/part2_hint2.md if you get stuck!
   Future<void> processImage(CameraImage image) async {
     if (isProcessing) return;
 
